@@ -2,10 +2,8 @@ import lombok.RequiredArgsConstructor;
 import server.Server;
 import utils.ClimateStatus;
 
-import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Random;
-import java.util.TimeZone;
 
 @RequiredArgsConstructor
 public class Main {
