@@ -2,12 +2,14 @@ package server;
 
 import dto.IdentificationDto;
 import lombok.Data;
-import dto.ClimateStatus;
+import lombok.EqualsAndHashCode;
+import task.ClimateStatus;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.StringJoiner;
 
+@EqualsAndHashCode(callSuper = false)
 @Data
 public class Server extends UnicastRemoteObject implements RemoteMethodInvocable{
 

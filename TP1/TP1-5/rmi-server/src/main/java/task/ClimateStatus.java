@@ -1,4 +1,4 @@
-package utils;
+package task;
 
 import lombok.Builder;
 import lombok.Data;
