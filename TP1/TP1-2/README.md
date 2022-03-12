@@ -1,5 +1,5 @@
 # TP1 - Ejercicio 2
-Ejercicio realizado en Nodejs y TypeScript.
+Ejercicio esta realizado en Nodejs y TypeScript.
 
 ## Requisitos
 Tener **Node** y **NPM** instalados (puede correr los comandos `node -v` y `npm -v` para saber si los tiene instalados o no).
