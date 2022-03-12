@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+</head>
+
+<body>
+	<H1>PING PONG DE MENSAJES</H1>
+	<input id="input" type="text" placeholder="Introduzca un texto">
+	<button onclick="sendMessage()">Enviar mensaje</button>
+
+	<h3>Mensajes del servidor:</h3>
+	<div id="messages-list">
+
+	</div>
+</body>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+	const socket = io.connect("http://localhost:3001/");
+
+	socket.on('messageResponse', handleMessageResponse);
+
+	socket.emit('nuevoEvento', { message: 'hola, como te va?'});
+
+	function sendMessage() {
+		// Agarrar el mensaje del input
+		const message = document.getElementById('input').value;
+		console.log(message);
+
+		// Enviarlo al back
+		console.log('1');
+		socket.emit('sendMessage', message);
+		console.log('2');
+
+		// Wipe input
+		document.getElementById('input').value = '';
+	}
+
+	function handleMessageResponse(message) {
+		console.log('el server respondio', message);
+		// Crea el nodo HTML
+		const newElement = createMessageNode(message);
+
+		// 
+		const messagesListElement = document.getElementById('messages-list');
+		messagesListElement.appendChild(newElement);
+	}
+
+	function createMessageNode(text) {
+		// Crear y retornar el nodo HTML con el texto
+		const newElement = document.createElement('p');
+		newElement.innerHTML = text
+		return newElement;
+	}
+</script>
+
+</html>
