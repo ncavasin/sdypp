@@ -29,16 +29,16 @@ public class Main {
         log.info("Bootstrapping RMI server...");
 
         // Instantiate the server
-        Server server = null;
-        try {
-            server = new Server(pickNameAtRandom(), pickLocationAtRandom(), ipAddress, port);
-            log.info("RMI server initialized successfully!");
-        } catch (RemoteException e) {
-            panic("Error while initializing RMI server", e);
-        }
+        Server server = getServer();
 
         // Declare a secondary server to perform as RMI stub
-        Server stub;
+        Server stub = getStub(server);
+
+        log.info("Running.....");
+    }
+
+    private static Server getStub(Server server) {
+        Server stub = null;
         try {
             // Export the stub object to make it available to receive remote incoming calls in the indicated port
             stub = (Server) UnicastRemoteObject.exportObject(server, server != null ? server.getPort() : 8080);
@@ -55,7 +55,18 @@ public class Main {
         }catch (AlreadyBoundException e2){
             log.warn("Server's stub: {}", e2.getMessage());
         }
-        log.info("Running.....");
+        return stub;
+    }
+
+    private static Server getServer() {
+        Server server = null;
+        try {
+            server = new Server(pickNameAtRandom(), pickLocationAtRandom(), ipAddress, port);
+            log.info("RMI server initialized successfully!");
+        } catch (RemoteException e) {
+            panic("Error while initializing RMI server", e);
+        }
+        return server;
     }
 
     private static void checkUsage(int size) {
