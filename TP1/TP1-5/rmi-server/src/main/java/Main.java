@@ -28,13 +28,22 @@ public class Main {
 
         log.info("Bootstrapping RMI server...");
 
-        // Instantiate the server
+        setSecurityManager();
+
         Server server = getServer();
 
-        // Declare a secondary server to perform as RMI stub
         Server stub = getStub(server);
 
         log.info("Running.....");
+    }
+
+    private static void setSecurityManager() {
+        try{
+            System.setSecurityManager(new SecurityManager());
+            log.info("Security Manager initialized successfully!");
+        }catch (Exception e){
+            panic("Error while initializing Security Manager", e);
+        }
     }
 
     private static Server getStub(Server server) {
