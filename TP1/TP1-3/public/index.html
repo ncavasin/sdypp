@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+</head>
+
+<body>
+	<H1>Chat super lindo y genial</H1>
+
+	<div id="name-container">
+		<p>Ingrese un nombre</p>
+		<input id="name" type="text" placeholder="Ingrese un nombre">
+		<button onclick="setName()">Settear nombre</button>
+		<p id="error-display" style="display: none;">
+			ERROR!!
+		</p>
+	</div>
+
+	<div id="messages-container">
+		<input id="input" type="text" placeholder="Introduzca un texto">
+		<button id="send-message-button" onclick="sendMessage()">Enviar mensaje</button>
+
+		<h3>Mensajes del servidor:</h3>
+		<div id="messages-list"></div>
+	</div>
+</body>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+	const socket = io.connect("http://localhost:3001/");
+
+	socket.on('messageResponse', handleMessageResponse);
+
+	document.getElementById("messages-container").style.display = "none";
+
+	function setName() {
+		// Get the input name
+		const inputElement = document.getElementById('name');
+		const name = inputElement.value;
+		console.log('name', name);
+
+		// Emit 'setName' event
+		socket.emit('setName', name, (error, message) => {
+			if (error) {
+				// display
+				const errorElement = document.getElementById("error-display");
+				errorElement.innerHTML = `Error: ${error}`;
+				errorElement.style.display = "block";
+			} else {
+				// Set the name input to default
+				inputElement.value = '';
+				// Invisibilize the Error message
+				document.getElementById("error-display").style.display = "none";
+				document.getElementById("name-container").style.display = "none";
+
+				// Change the send message button innerHTML to show the user name
+				const sendMessageButton = document.getElementById("send-message-button");
+				sendMessageButton.innerHTML = `${sendMessageButton.innerHTML} como "${name}"`;
+
+				// Display the messages container
+				document.getElementById("messages-container").style.display = "block";
+
+			}
+		})
+	}
+
+	function sendMessage() {
+		// Get the input text
+		const inputElement = document.getElementById('input');
+		const message = inputElement.value;
+
+		// Enviarlo al back
+		socket.emit('sendMessage', message);
+
+		// Wipe input
+		document.getElementById('input').value = '';
+	}
+
+	function handleMessageResponse(message) {
+		console.log('el server respondio', message);
+		// Crea el nodo HTML
+		const newElement = createMessageNode(message);
+
+		// 
+		const messagesListElement = document.getElementById('messages-list');
+		messagesListElement.appendChild(newElement);
+	}
+
+	function createMessageNode(text) {
+		// Crear y retornar el nodo HTML con el texto
+		const newElement = document.createElement('p');
+		newElement.innerHTML = text
+		return newElement;
+	}
+</script>
+
+</html>

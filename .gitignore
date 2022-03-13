@@ -35,3 +35,9 @@ build/
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
+
+# node_modules
+node_modules
+
+# TS compiled files
+dist
