@@ -3,7 +3,6 @@ import lombok.extern.slf4j.Slf4j;
 import server.Server;
 import task.ClimateStatus;
 
-import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -15,12 +14,11 @@ import java.util.Random;
 @RequiredArgsConstructor
 public class Main {
     private static final String USAGE_MESSAGE = "Server IP address and/or port are missing";
-    private static String ipAddress;
-    private static int port;
-
     /* just for fun */
     private static final HashMap<Integer, String> names = new HashMap<>();
     private static final HashMap<Integer, ClimateStatus> climates = new HashMap<>();
+    private static String ipAddress;
+    private static int port;
 
     public static void main(String[] args) {
         checkUsage(args.length);
@@ -28,7 +26,7 @@ public class Main {
 
         log.info("Bootstrapping RMI server...");
 
-        setSecurityManager();
+//        setSecurityManager();
 
         Server server = getServer();
 
@@ -38,10 +36,10 @@ public class Main {
     }
 
     private static void setSecurityManager() {
-        try{
+        try {
             System.setSecurityManager(new SecurityManager());
             log.info("Security Manager initialized successfully!");
-        }catch (Exception e){
+        } catch (Exception e) {
             panic("Error while initializing Security Manager", e);
         }
     }
@@ -49,20 +47,20 @@ public class Main {
     private static Server getStub(Server server) {
         Server stub = null;
         try {
-            // Export the stub object to make it available to receive remote incoming calls in the indicated port
-            stub = (Server) UnicastRemoteObject.exportObject(server, server != null ? server.getPort() : 8080);
+            // Export the stub to receive remote invocations over TCP connections at received port or default 6060
+            stub = (Server) UnicastRemoteObject.exportObject(server, server != null ? server.getPort() : 6060);
+
             log.info("Server's stub instantiated successfully.");
 
-            // Get a reference to the Remote interface registry. Well-known port 1099
+            // Get a reference to the Remote interface registry. Well-known port is 1099
             Registry registry = LocateRegistry.getRegistry();
 
             // Bind the stub name (aka "Server" class) to the received port to be found from remote clients by its name
-            registry.bind(Server.class.toString(), stub);
+            registry.rebind(Server.class.toString(), stub);
+
             log.info("Server's stub bounded successfully to port {}.", stub.getPort());
         } catch (RemoteException e) {
             log.warn(e.getMessage());
-        }catch (AlreadyBoundException e2){
-            log.warn("Server's stub: {}", e2.getMessage());
         }
         return stub;
     }
@@ -84,7 +82,7 @@ public class Main {
 
     private static void panic(String msg, Exception e) {
         log.error(msg);
-        if (e != null){
+        if (e != null) {
             log.info(e.getMessage());
             e.printStackTrace();
         }
