@@ -1,9 +1,9 @@
-package server;
+package rmi;
 
 import dto.IdentificationDto;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import task.ClimateStatus;
+import shared.WeatherForecaster;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -11,7 +11,7 @@ import java.util.StringJoiner;
 
 @EqualsAndHashCode(callSuper = false)
 @Data
-public class Server extends UnicastRemoteObject implements RemoteMethodInvocable{
+public class WeatherForecasterImpl extends UnicastRemoteObject implements WeatherForecaster {
 
     private int port;
     private String ipAddress;
@@ -19,7 +19,7 @@ public class Server extends UnicastRemoteObject implements RemoteMethodInvocable
     private String name;
     private ClimateStatus climateStatus;
 
-    public Server(String name, ClimateStatus climateStatuses, String ipAddress, int port) throws RemoteException {
+    public WeatherForecasterImpl(String name, ClimateStatus climateStatuses, String ipAddress, int port) throws RemoteException {
         super();
         setPid(ProcessHandle.current().pid());
         setIpAddress(ipAddress);
