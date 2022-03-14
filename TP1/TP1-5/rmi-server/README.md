@@ -1,7 +1,7 @@
 # RMI Overview
 Per [Oracle](https://docs.oracle.com/javase/tutorial/rmi/overview.html) definition:
 
->RMI applications often comprise two separate programs, a server and a client. A typical server program creates some remote objects, makes references to these objects accessible, and waits for clients to invoke methods on these objects. A typical client program obtains a remote reference to one or more remote objects on a server and then invokes methods on them. RMI provides the mechanism by which the server and the client communicate and pass information back and forth. Such an application is sometimes referred to as a distributed object application.
+>RMI applications often comprise two separate programs, a remoteMethodInvocableImpl and a client. A typical remoteMethodInvocableImpl program creates some remote objects, makes references to these objects accessible, and waits for clients to invoke methods on these objects. A typical client program obtains a remote reference to one or more remote objects on a remoteMethodInvocableImpl and then invokes methods on them. RMI provides the mechanism by which the remoteMethodInvocableImpl and the client communicate and pass information back and forth. Such an application is sometimes referred to as a distributed object application.
 
 # Description
 This exercise presents a Server who implements the ``Remote`` interface. That means that it's exposing the methods defined in the ``RemoteMethodInvocable`` interface for consumption, remaining idle until a Client -located at another JVM or not- decides to invoke one of them.
