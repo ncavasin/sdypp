@@ -100,12 +100,12 @@ public class Server {
         names.put(5, "TERMINATOR");
 
         climates.put(1, ClimateStatus.builder()
-                .country("BUENOS_AIRES")
+                .country("BUENOS AIRES")
                 .temperature("19°c")
                 .humidity("81%")
                 .build());
         climates.put(2, ClimateStatus.builder()
-                .country("NEW_YORK")
+                .country("NEW YORK")
                 .temperature("2°c")
                 .humidity("91%")
                 .build());
@@ -115,7 +115,7 @@ public class Server {
                 .humidity("49%")
                 .build());
         climates.put(4, ClimateStatus.builder()
-                .country("TEL_AVIV")
+                .country("TEL AVIV")
                 .temperature("13°c")
                 .humidity("84%")
                 .build());
