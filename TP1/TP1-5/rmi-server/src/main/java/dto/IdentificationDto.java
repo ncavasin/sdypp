@@ -2,7 +2,6 @@ package dto;
 
 import lombok.Builder;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 
 import java.util.StringJoiner;
 
@@ -10,25 +9,23 @@ import java.util.StringJoiner;
 @Builder
 public class IdentificationDto {
 
-    /* Sender's IP address */
+    // socket
     private String ipAddress;
-
-    /* Sender's port */
     private int port;
 
-    /* Sender's process ID */
+    // process ID
     private long pid;
 
-    /* Sender's name */
+    // server's name
     private String name;
 
     @Override
     public String toString() {
-        StringJoiner stringJoiner = new StringJoiner("\n");
+        StringJoiner stringJoiner = new StringJoiner("\n\t\t\t");
         return stringJoiner
-                .add("Hello! My name is " + pid)
-                .add("But my friends call me " + name)
-                .add("You can find me at " + ipAddress + ":" + port)
+                .add("Hello! My name is PID " + pid)
+                .add("But my friends call me " + name + " (RMI lookup value)")
+                .add("You can find me at " + ipAddress + ":" + port + " (RMI TCP socket)")
                 .toString();
     }
 }
