@@ -1,4 +1,4 @@
-package task;
+package rmi;
 
 import lombok.Builder;
 import lombok.Data;
