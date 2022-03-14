@@ -1,12 +1,11 @@
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import rmi.WeatherForecasterImpl;
 import rmi.ClimateStatus;
+import rmi.WeatherForecasterImpl;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -14,12 +13,12 @@ import java.util.Random;
 @RequiredArgsConstructor
 public class Server {
     private static final String USAGE_MESSAGE = "WeatherForecasterImpl IP address and/or port are missing";
-
     /* just for fun */
     private static final HashMap<Integer, String> names = new HashMap<>();
     private static final HashMap<Integer, ClimateStatus> climates = new HashMap<>();
-    private static String ipAddress;
     private static int port;
+    // Represents the current IP address of the system -> required for the registry
+    private static String ipAddress;
 
     public static void main(String[] args) {
         checkUsage(args.length);
@@ -27,56 +26,66 @@ public class Server {
 
         log.info("Bootstrapping RMI server...");
 
+        System.setProperty("java.rmi.server.hostname", ipAddress);
+
+        // Create a new forecaster with randomized data
         WeatherForecasterImpl weatherForecaster = getWeatherForecaster();
 
-        WeatherForecasterImpl weatherForecasterStub = getStub(weatherForecaster);
+        Registry registry = createRegistry(weatherForecaster);
 
-        log.info("RMI server running.....");
+        // Bind exported stub to received port to accept incoming consumptions from client through TCP sockets
+        bind(weatherForecaster, registry);
+
+        log.info("RMI server running at [{}:{}] ...", weatherForecaster.getIpAddress(), weatherForecaster.getPort());
     }
 
-    private static WeatherForecasterImpl getStub(WeatherForecasterImpl remoteMethodInvocableImpl) {
-        WeatherForecasterImpl stub = null;
+    private static void bind(WeatherForecasterImpl weatherForecaster, Registry registry) {
         try {
-            // Export the stub to receive remote invocations over TCP connections at received port or default 6060
-            stub = (WeatherForecasterImpl) UnicastRemoteObject.exportObject(remoteMethodInvocableImpl, remoteMethodInvocableImpl != null ? remoteMethodInvocableImpl.getPort() : 6060);
-
-            log.info("RMI stub instantiated successfully.");
-
-            // Get a reference to the Remote interface registry. Well-known port is 1099
-            Registry registry = LocateRegistry.getRegistry();
-
-            // Bind the stub name (aka "WeatherForecasterImpl" class) to the received port to be found from remote clients by its name
-            registry.rebind("WeatherForecasterImpl", stub);
-
-            log.info("RMI stub bounded successfully to port {}.", stub.getPort());
+            // Bind the forecaster to a name in order to be found from remote clients by that name
+            registry.rebind(weatherForecaster.getName(), weatherForecaster);
+            log.info("Weather forecaster bounded successfully to port {}. Client lookup name is: {}.", weatherForecaster.getPort(), weatherForecaster.getName());
         } catch (RemoteException e) {
-            log.warn(e.getMessage());
+            panic(String.format("FATAL: failed to bind weather forecaster to name %s at port %d", weatherForecaster.getName(), weatherForecaster.getPort()), e);
         }
-        return stub;
+    }
+
+    private static Registry createRegistry(WeatherForecasterImpl weatherForecaster) {
+        // Create a new registry at received port
+        Registry registry = null;
+        try {
+            registry = LocateRegistry.createRegistry(weatherForecaster.getPort());
+            log.info("Registry created successfully at port {}.", weatherForecaster.getPort());
+        } catch (RemoteException e) {
+            panic(String.format("FATAL Could not create a new Registry at port %d", weatherForecaster.getPort()), e);
+        }
+        return registry;
     }
 
     private static WeatherForecasterImpl getWeatherForecaster() {
         WeatherForecasterImpl weatherForecaster = null;
         try {
             weatherForecaster = new WeatherForecasterImpl(pickNameAtRandom(), pickLocationAtRandom(), ipAddress, port);
-            log.info("RMI remoteMethodInvocableImpl instantiated successfully!");
+            log.info("Weather forecaster {} initialized successfully!", weatherForecaster.getName());
         } catch (RemoteException e) {
-            panic("Error while initializing RMI remoteMethodInvocableImpl", e);
+            panic("Error while initializing weather forecaster", e);
         }
         return weatherForecaster;
     }
 
-    private static void checkUsage(int size) {
-        if (size != 2) panic(USAGE_MESSAGE, null);
+    private static ClimateStatus pickLocationAtRandom() {
+        Random random = new Random();
+        int mappedNameKey = random.ints(1, names.size())
+                .findFirst()
+                .getAsInt();
+        return climates.get(mappedNameKey);
     }
 
-    private static void panic(String msg, Exception e) {
-        log.error(msg);
-        if (e != null) {
-            log.info(e.getMessage());
-            e.printStackTrace();
-        }
-        System.exit(1);
+    private static String pickNameAtRandom() {
+        Random random = new Random();
+        int mappedNameKey = random.ints(1, names.size())
+                .findFirst()
+                .getAsInt();
+        return names.get(mappedNameKey);
     }
 
     private static void setUp(String[] args) {
@@ -117,19 +126,16 @@ public class Server {
                 .build());
     }
 
-    private static ClimateStatus pickLocationAtRandom() {
-        Random random = new Random();
-        int mappedNameKey = random.ints(1, names.size())
-                .findFirst()
-                .getAsInt();
-        return climates.get(mappedNameKey);
+    private static void checkUsage(int size) {
+        if (size != 2) panic(USAGE_MESSAGE, null);
     }
 
-    private static String pickNameAtRandom() {
-        Random random = new Random();
-        int mappedNameKey = random.ints(1, names.size())
-                .findFirst()
-                .getAsInt();
-        return names.get(mappedNameKey);
+    private static void panic(String msg, Exception e) {
+        log.error(msg);
+        if (e != null) {
+            log.info(e.getMessage());
+            e.printStackTrace();
+        }
+        System.exit(1);
     }
 }
