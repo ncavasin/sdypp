@@ -21,11 +21,13 @@ public class IdentificationDto {
 
     @Override
     public String toString() {
-        StringJoiner stringJoiner = new StringJoiner("\n\t\t\t");
+        StringJoiner stringJoiner = new StringJoiner(". ");
         return stringJoiner
+                .add(">> ")
                 .add("Hello! My name is PID " + pid)
-                .add("But my friends call me " + name + " (RMI lookup value)")
+                .add("My friends call me " + name + " (RMI lookup value)")
                 .add("You can find me at " + ipAddress + ":" + port + " (RMI TCP socket)")
+                .add("<<")
                 .toString();
     }
 }
