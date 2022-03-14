@@ -1,7 +1,7 @@
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import server.Server;
-import task.ClimateStatus;
+import rmi.WeatherForecasterImpl;
+import rmi.ClimateStatus;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -12,8 +12,9 @@ import java.util.Random;
 
 @Slf4j
 @RequiredArgsConstructor
-public class Main {
-    private static final String USAGE_MESSAGE = "Server IP address and/or port are missing";
+public class Server {
+    private static final String USAGE_MESSAGE = "WeatherForecasterImpl IP address and/or port are missing";
+
     /* just for fun */
     private static final HashMap<Integer, String> names = new HashMap<>();
     private static final HashMap<Integer, ClimateStatus> climates = new HashMap<>();
@@ -26,54 +27,43 @@ public class Main {
 
         log.info("Bootstrapping RMI server...");
 
-//        setSecurityManager();
+        WeatherForecasterImpl weatherForecaster = getWeatherForecaster();
 
-        Server server = getServer();
+        WeatherForecasterImpl weatherForecasterStub = getStub(weatherForecaster);
 
-        Server stub = getStub(server);
-
-        log.info("Running.....");
+        log.info("RMI server running.....");
     }
 
-    private static void setSecurityManager() {
-        try {
-            System.setSecurityManager(new SecurityManager());
-            log.info("Security Manager initialized successfully!");
-        } catch (Exception e) {
-            panic("Error while initializing Security Manager", e);
-        }
-    }
-
-    private static Server getStub(Server server) {
-        Server stub = null;
+    private static WeatherForecasterImpl getStub(WeatherForecasterImpl remoteMethodInvocableImpl) {
+        WeatherForecasterImpl stub = null;
         try {
             // Export the stub to receive remote invocations over TCP connections at received port or default 6060
-            stub = (Server) UnicastRemoteObject.exportObject(server, server != null ? server.getPort() : 6060);
+            stub = (WeatherForecasterImpl) UnicastRemoteObject.exportObject(remoteMethodInvocableImpl, remoteMethodInvocableImpl != null ? remoteMethodInvocableImpl.getPort() : 6060);
 
-            log.info("Server's stub instantiated successfully.");
+            log.info("RMI stub instantiated successfully.");
 
             // Get a reference to the Remote interface registry. Well-known port is 1099
             Registry registry = LocateRegistry.getRegistry();
 
-            // Bind the stub name (aka "Server" class) to the received port to be found from remote clients by its name
-            registry.rebind(Server.class.toString(), stub);
+            // Bind the stub name (aka "WeatherForecasterImpl" class) to the received port to be found from remote clients by its name
+            registry.rebind("WeatherForecasterImpl", stub);
 
-            log.info("Server's stub bounded successfully to port {}.", stub.getPort());
+            log.info("RMI stub bounded successfully to port {}.", stub.getPort());
         } catch (RemoteException e) {
             log.warn(e.getMessage());
         }
         return stub;
     }
 
-    private static Server getServer() {
-        Server server = null;
+    private static WeatherForecasterImpl getWeatherForecaster() {
+        WeatherForecasterImpl weatherForecaster = null;
         try {
-            server = new Server(pickNameAtRandom(), pickLocationAtRandom(), ipAddress, port);
-            log.info("RMI server initialized successfully!");
+            weatherForecaster = new WeatherForecasterImpl(pickNameAtRandom(), pickLocationAtRandom(), ipAddress, port);
+            log.info("RMI remoteMethodInvocableImpl instantiated successfully!");
         } catch (RemoteException e) {
-            panic("Error while initializing RMI server", e);
+            panic("Error while initializing RMI remoteMethodInvocableImpl", e);
         }
-        return server;
+        return weatherForecaster;
     }
 
     private static void checkUsage(int size) {
@@ -92,6 +82,7 @@ public class Main {
     private static void setUp(String[] args) {
         ipAddress = args[0];
         port = Integer.parseInt(args[1]);
+        if (port > 65536 | port < 1023) panic("Port invalid range!", null);
 
         names.put(1, "JARVIS");
         names.put(2, "R2-D2");
