@@ -1,0 +1,12 @@
+version: "3.7"
+services:
+  server:
+    container_name: rmi-server
+    ports:
+      -
+    networks:
+      - sdypp-tp1_5
+
+# As the current name of the network is 'hub', the resulting network will be: 'hub_dev_hub'
+networks:
+   sdypp-tp1_5:
