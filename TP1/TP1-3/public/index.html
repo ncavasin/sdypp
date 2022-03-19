@@ -11,7 +11,7 @@
 	<H1>Chat super lindo y genial</H1>
 
 	<div id="name-container">
-		<p>Ingrese un nombre</p>
+		<p>Ingrese su nombre</p>
 		<input id="name" type="text" placeholder="Ingrese un nombre">
 		<button onclick="setName()">Settear nombre</button>
 		<p id="error-display" style="display: none;">
@@ -20,10 +20,11 @@
 	</div>
 
 	<div id="messages-container">
-		<input id="input" type="text" placeholder="Introduzca un texto">
+		<input id="message-input" type="text" placeholder="Introduzca un texto">
+		<input id="destinatory-input" type="text" placeholder="Destinatario">
 		<button id="send-message-button" onclick="sendMessage()">Enviar mensaje</button>
 
-		<h3>Mensajes del servidor:</h3>
+		<h3 id="message-list-title">Mensajes del servidor dirigidos hacia vos</h3>
 		<div id="messages-list"></div>
 	</div>
 </body>
@@ -32,68 +33,106 @@
 <script>
 	const socket = io.connect("http://localhost:3001/");
 
-	socket.on('messageResponse', handleMessageResponse);
+	socket.on('messageReceived', handleMessageReceived);
 
 	document.getElementById("messages-container").style.display = "none";
 
-	function setName() {
+	async function setName() {
 		// Get the input name
 		const inputElement = document.getElementById('name');
 		const name = inputElement.value;
-		console.log('name', name);
 
-		// Emit 'setName' event
-		socket.emit('setName', name, (error, message) => {
-			if (error) {
-				// display
-				const errorElement = document.getElementById("error-display");
-				errorElement.innerHTML = `Error: ${error}`;
-				errorElement.style.display = "block";
-			} else {
-				// Set the name input to default
-				inputElement.value = '';
-				// Invisibilize the Error message
-				document.getElementById("error-display").style.display = "none";
-				document.getElementById("name-container").style.display = "none";
+		try {
+			// Emit the 'setName' event
+			await _setName(name);
 
-				// Change the send message button innerHTML to show the user name
-				const sendMessageButton = document.getElementById("send-message-button");
-				sendMessageButton.innerHTML = `${sendMessageButton.innerHTML} como "${name}"`;
+			// Set the name input to default
+			inputElement.value = '';
+			// Invisibilize the Error message
+			document.getElementById("error-display").style.display = "none";
+			document.getElementById("name-container").style.display = "none";
+			// Change the send-message-button's innerHTML to show the user's name
+			const sendMessageButton = document.getElementById("send-message-button");
+			sendMessageButton.innerHTML = `${sendMessageButton.innerHTML} como "${name}"`; // e.g: Enviar mensaje como "Juan"
+			// Change the message-list-title's innerHTML to show the user's name
+			const messageListTitle = document.getElementById("message-list-title");
+			messageListTitle.innerHTML = `${messageListTitle.innerHTML}, "${name}"`; // e.g: Mensajes del servidor dirigidos hacia vos, "Juan"
 
-				// Display the messages container
-				document.getElementById("messages-container").style.display = "block";
+			// Display the messages container
+			document.getElementById("messages-container").style.display = "block";
 
-			}
+			// Retrieve the already existing message for this name
+			const existingMessages = await _retrieveExistingMessages();
+			console.log(existingMessages);
+			loadMessagesList(existingMessages);
+		} catch (error) {
+			// display Error message
+			const errorElement = document.getElementById("error-display");
+			errorElement.innerHTML = `Error: ${error}`;
+			errorElement.style.display = "block";
+			console.error('OOPS! Something went wrong :(', error);
+		}
+
+	}
+
+	function _setName(name) {
+		return new Promise((resolve, reject) => {
+			socket.emit('setName', name, (error, message) => {
+				if (error) return reject(error);
+				return resolve(message);
+			})
+		})
+	}
+
+	function _retrieveExistingMessages() {
+		return new Promise((resolve, reject) => {
+			socket.emit('retrieveQueuedMessages', (error, payload) => {
+				if (error) return reject(error);
+				return resolve(payload);
+			})
 		})
 	}
 
 	function sendMessage() {
 		// Get the input text
-		const inputElement = document.getElementById('input');
-		const message = inputElement.value;
+		const messageInputElement = document.getElementById('message-input');
+		const message = messageInputElement.value;
+		// Get the destinatory input text
+		const destinatoryInputElement = document.getElementById('destinatory-input');
+		const destinatory = destinatoryInputElement.value;
 
 		// Enviarlo al back
-		socket.emit('sendMessage', message);
+		socket.emit('sendMessage', destinatory, message);
 
-		// Wipe input
-		document.getElementById('input').value = '';
+		// Wipe inputs
+		document.getElementById('message-input').value = '';
+		document.getElementById('destinatory-input').value = '';
 	}
 
-	function handleMessageResponse(message) {
-		console.log('el server respondio', message);
+	function loadMessagesList(messages) {
+		for (const message of messages) {
+			appendMessageToTheList(message);
+		}
+	}
+
+	function appendMessageToTheList(message) {
 		// Crea el nodo HTML
 		const newElement = createMessageNode(message);
-
-		// 
+	
+		// Append the message to the list
 		const messagesListElement = document.getElementById('messages-list');
 		messagesListElement.appendChild(newElement);
 	}
 
-	function createMessageNode(text) {
+	function createMessageNode({ message, sender, date }) {
 		// Crear y retornar el nodo HTML con el texto
 		const newElement = document.createElement('p');
-		newElement.innerHTML = text
+		newElement.innerHTML = `${date} - ${sender}: ${message}`;
 		return newElement;
+	}
+
+	function handleMessageReceived(message) {
+		appendMessageToTheList(message);
 	}
 </script>
 
