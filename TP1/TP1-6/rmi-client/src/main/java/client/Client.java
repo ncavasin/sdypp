@@ -48,13 +48,15 @@ public class Client {
 
         // Define two vectors
         List<Float> v1 = List.of(9.8F, 5F, 2.7F, 1F, 1F);
-        log.info("Vector 1 = {}", v1);
+        log.info("Vector 1 = {}.", v1);
         List<Float> v2 = List.of(0.2F, 5F, 2.3F, 1F, 9F);
-        log.info("Vector 2 = {}", v2);
+        log.info("Vector 2 = {}.\n\n", v2);
 
         try {
             VectorOperationResultDto vectorOperationResultDto = vectorMath.addition(v1, v2);
-            log.info("Addition = {} ", vectorOperationResultDto.toString());
+            log.info("Received V1 = {}", vectorOperationResultDto.getV1());
+            log.info("Received V2 = {}", vectorOperationResultDto.getV2());
+            log.info("Addition = {}\n\n", vectorOperationResultDto.getResult());
         } catch (RemoteException e) {
             log.warn("Remote method invocation failed: {}", e.getMessage());
             e.printStackTrace();
@@ -62,7 +64,9 @@ public class Client {
 
         try {
             VectorOperationResultDto vectorOperationResultDto = vectorMath.subtraction(v1, v2);
-            log.info("Addition = {} ", vectorOperationResultDto.toString());
+            log.info("Received V1 = {}", vectorOperationResultDto.getV1());
+            log.info("Received V2 = {}", vectorOperationResultDto.getV2());
+            log.info("Subtraction = {}\n\n", vectorOperationResultDto.getResult());
         } catch (RemoteException e) {
             log.warn("Remote method invocation failed: {}", e.getMessage());
             e.printStackTrace();

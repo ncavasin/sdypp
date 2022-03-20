@@ -56,7 +56,7 @@ public class VectorOperatorImpl extends UnicastRemoteObject implements VectorOpe
         List<Float> result = new ArrayList<>();
 
         if (lengthsDiffer(v1, v2))
-            return new VectorOperationResultDto();
+            return VectorOperationResultDto.builder().build();
 
         v1 = shouldFlipRandom(v1.size()) ? flip(v1) : v1;
 
@@ -64,7 +64,11 @@ public class VectorOperatorImpl extends UnicastRemoteObject implements VectorOpe
             result.add(v1.get(i) + v2.get(i));
         }
 
-        return new VectorOperationResultDto(v1, v2, result);
+        return VectorOperationResultDto.builder()
+                .v1(v1)
+                .v2(v2)
+                .result(result)
+                .build();
 
     }
 
@@ -74,7 +78,7 @@ public class VectorOperatorImpl extends UnicastRemoteObject implements VectorOpe
         List<Float> result = new ArrayList<>();
 
         if (lengthsDiffer(v1, v2))
-            return new VectorOperationResultDto();
+            return VectorOperationResultDto.builder().build();
 
         v1 = shouldFlipRandom(v1.size()) ? flip(v1) : v1;
 
@@ -82,7 +86,11 @@ public class VectorOperatorImpl extends UnicastRemoteObject implements VectorOpe
             result.add(v1.get(i) - v2.get(i));
         }
 
-        return new VectorOperationResultDto(v1, v2, result);
+        return VectorOperationResultDto.builder()
+                .v1(v1)
+                .v2(v2)
+                .result(result)
+                .build();
     }
 
     private List<Float> flip(List<Float> v1) {
