@@ -9,7 +9,6 @@ import shared.TaskProcessor;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -53,19 +52,5 @@ public class TaskProcessorImpl extends UnicastRemoteObject implements TaskProces
     @Override
     public <T> T executeTask(Task<T> t) throws RemoteException {
         return null;
-    }
-
-    private List<Float> flip(List<Float> v1) {
-        return v1.stream().map(e -> e * (-1)).collect(Collectors.toList());
-    }
-
-    private boolean shouldFlipRandom(int upperLimit) {
-        return (new Random().ints(1, upperLimit)
-                .findFirst()
-                .getAsInt() % 2) == 0;
-    }
-
-    private boolean lengthsDiffer(List<Float> v1, List<Float> v2) {
-        return v1.size() != v2.size();
     }
 }
