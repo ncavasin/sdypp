@@ -7,7 +7,7 @@ import java.rmi.RemoteException;
  * Due to the fact that this interface extends Remote and exposes methods, any implementer will
  * be ready to serve them through RMI
  */
-public interface WeatherForecaster extends Remote {
+public interface VectorMath extends Remote {
 
     // Echo back received message
     String echo(String msg) throws RemoteException;
@@ -15,10 +15,8 @@ public interface WeatherForecaster extends Remote {
     // Let the client know who the implementer is
     String identifyYourself() throws RemoteException;
 
-    // Let the client know how the climate is at the implementer's location
-    String getClimateConditions() throws RemoteException;
+    Float[] add(Float[] v1, Float[] v2);
 
-    // Let the client know who the implementer is AND how the climate is at the implementer's location (or so...)
-    String getFullReport() throws RemoteException;
+    Float[] substract(Float[] v1, Float[] v2);
 
 }
