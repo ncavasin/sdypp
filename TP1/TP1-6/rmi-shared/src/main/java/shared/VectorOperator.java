@@ -2,12 +2,13 @@ package shared;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.List;
 
 /**
  * Due to the fact that this interface extends Remote and exposes methods, any implementer will
  * be ready to serve them through RMI
  */
-public interface VectorMath extends Remote {
+public interface VectorOperator extends Remote {
 
     // Echo back received message
     String echo(String msg) throws RemoteException;
@@ -15,8 +16,8 @@ public interface VectorMath extends Remote {
     // Let the client know who the implementer is
     String identifyYourself() throws RemoteException;
 
-    Float[] add(Float[] v1, Float[] v2);
+    VectorOperationResultDto addition(List<Float> v1, List<Float> v2) throws RemoteException;
 
-    Float[] substract(Float[] v1, Float[] v2);
+    VectorOperationResultDto subtraction(List<Float> v1, List<Float> v2) throws RemoteException;
 
 }
