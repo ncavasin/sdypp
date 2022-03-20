@@ -1,6 +1,5 @@
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import rmi.ClimateStatus;
 import rmi.VectorMathImpl;
 
 import java.rmi.RemoteException;
