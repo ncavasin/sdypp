@@ -4,7 +4,8 @@ import dto.IdentificationDto;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
-import shared.VectorOperator;
+import shared.Task;
+import shared.TaskProcessor;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -16,14 +17,14 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode(callSuper = false)
 @Data
 @Slf4j
-public class VectorOperatorImpl extends UnicastRemoteObject implements VectorOperator {
+public class TaskProcessorImpl extends UnicastRemoteObject implements TaskProcessor {
 
     private int port;
     private String ipAddress;
     private long pid;
     private String name;
 
-    public VectorOperatorImpl(String name, String ipAddress, int port) throws RemoteException {
+    public TaskProcessorImpl(String name, String ipAddress, int port) throws RemoteException {
         super();
         setPid(ProcessHandle.current().pid());
         setIpAddress(ipAddress);
@@ -50,46 +51,8 @@ public class VectorOperatorImpl extends UnicastRemoteObject implements VectorOpe
     }
 
     @Override
-    public VectorOperationResultDto addition(List<Float> v1, List<Float> v2) {
-        log.info("addition() invoked.");
-        List<Float> result = new ArrayList<>();
-
-        if (lengthsDiffer(v1, v2))
-            return VectorOperationResultDto.builder().build();
-
-        v1 = shouldFlipRandom(v1.size()) ? flip(v1) : v1;
-
-        for (int i = 0; i < v1.size(); i++) {
-            result.add(v1.get(i) + v2.get(i));
-        }
-
-        return VectorOperationResultDto.builder()
-                .v1(v1)
-                .v2(v2)
-                .result(result)
-                .build();
-
-    }
-
-    @Override
-    public VectorOperationResultDto subtraction(List<Float> v1, List<Float> v2) {
-        log.info("subtraction() invoked.");
-        List<Float> result = new ArrayList<>();
-
-        if (lengthsDiffer(v1, v2))
-            return VectorOperationResultDto.builder().build();
-
-        v1 = shouldFlipRandom(v1.size()) ? flip(v1) : v1;
-
-        for (int i = 0; i < v1.size(); i++) {
-            result.add(v1.get(i) - v2.get(i));
-        }
-
-        return VectorOperationResultDto.builder()
-                .v1(v1)
-                .v2(v2)
-                .result(result)
-                .build();
+    public <T> T executeTask(Task<T> t) throws RemoteException {
+        return null;
     }
 
     private List<Float> flip(List<Float> v1) {
