@@ -1,7 +1,7 @@
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import rmi.ClimateStatus;
-import rmi.WeatherForecasterImpl;
+import rmi.VectorMathImpl;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -12,10 +12,9 @@ import java.util.Random;
 @Slf4j
 @RequiredArgsConstructor
 public class Main {
-    private static final String USAGE_MESSAGE = "WeatherForecasterImpl IP address and/or port are missing";
+    private static final String USAGE_MESSAGE = "VectorMathImpl IP address and/or port are missing";
     /* just for fun */
     private static final HashMap<Integer, String> names = new HashMap<>();
-    private static final HashMap<Integer, ClimateStatus> climates = new HashMap<>();
     private static int port;
     // Represents the current IP address of the system -> required for the registry
     private static String ipAddress;
@@ -29,56 +28,49 @@ public class Main {
         System.setProperty("java.rmi.server.hostname", ipAddress);
 
         // Create a new forecaster with randomized data
-        WeatherForecasterImpl weatherForecaster = getWeatherForecaster();
+        VectorMathImpl vectorMath = getVectorMath();
 
-        Registry registry = createRegistry(weatherForecaster);
+        Registry registry = createRegistry(vectorMath);
 
         // Bind exported stub to received port to accept incoming consumptions from client through TCP sockets
-        bind(weatherForecaster, registry);
+        bind(vectorMath, registry);
 
-        log.info("RMI server running at [{}:{}] ...", weatherForecaster.getIpAddress(), weatherForecaster.getPort());
+        log.info("RMI server running at [{}:{}] ...", vectorMath.getIpAddress(), vectorMath.getPort());
     }
 
-    private static void bind(WeatherForecasterImpl weatherForecaster, Registry registry) {
+    private static void bind(VectorMathImpl vectorMath, Registry registry) {
         try {
             // Bind the forecaster to a name in order to be found from remote clients by that name
-            registry.rebind(weatherForecaster.getName(), weatherForecaster);
-            log.info("Weather forecaster bounded successfully to port {}. Client lookup name is: {}.", weatherForecaster.getPort(), weatherForecaster.getName());
+            registry.rebind(vectorMath.getName(), vectorMath);
+            log.info("Weather forecaster bounded successfully to port {}. Client lookup name is: {}.", vectorMath.getPort(), vectorMath.getName());
         } catch (RemoteException e) {
-            panic(String.format("FATAL: failed to bind weather forecaster to name %s at port %d", weatherForecaster.getName(), weatherForecaster.getPort()), e);
+            panic(String.format("FATAL: failed to bind weather forecaster to name %s at port %d", vectorMath.getName(), vectorMath.getPort()), e);
         }
     }
 
-    private static Registry createRegistry(WeatherForecasterImpl weatherForecaster) {
+    private static Registry createRegistry(VectorMathImpl vectorMath) {
         // Create a new registry at received port
         Registry registry = null;
         try {
-            registry = LocateRegistry.createRegistry(weatherForecaster.getPort());
-            log.info("Registry created successfully at port {}.", weatherForecaster.getPort());
+            registry = LocateRegistry.createRegistry(vectorMath.getPort());
+            log.info("Registry created successfully at port {}.", vectorMath.getPort());
         } catch (RemoteException e) {
-            panic(String.format("FATAL Could not create a new Registry at port %d", weatherForecaster.getPort()), e);
+            panic(String.format("FATAL Could not create a new Registry at port %d", vectorMath.getPort()), e);
         }
         return registry;
     }
 
-    private static WeatherForecasterImpl getWeatherForecaster() {
-        WeatherForecasterImpl weatherForecaster = null;
+    private static VectorMathImpl getVectorMath() {
+        VectorMathImpl vectorMath = null;
         try {
-            weatherForecaster = new WeatherForecasterImpl(pickNameAtRandom(), pickLocationAtRandom(), ipAddress, port);
-            log.info("Weather forecaster {} initialized successfully!", weatherForecaster.getName());
+            vectorMath = new VectorMathImpl(pickNameAtRandom(), ipAddress, port);
+            log.info("Weather forecaster {} initialized successfully!", vectorMath.getName());
         } catch (RemoteException e) {
             panic("Error while initializing weather forecaster", e);
         }
-        return weatherForecaster;
+        return vectorMath;
     }
 
-    private static ClimateStatus pickLocationAtRandom() {
-        Random random = new Random();
-        int mappedNameKey = random.ints(1, names.size())
-                .findFirst()
-                .getAsInt();
-        return climates.get(mappedNameKey);
-    }
 
     private static String pickNameAtRandom() {
         Random random = new Random();
@@ -98,32 +90,6 @@ public class Main {
         names.put(3, "C3PIO");
         names.put(4, "BENDER");
         names.put(5, "TERMINATOR");
-
-        climates.put(1, ClimateStatus.builder()
-                .country("BUENOS AIRES")
-                .temperature("19°c")
-                .humidity("81%")
-                .build());
-        climates.put(2, ClimateStatus.builder()
-                .country("NEW YORK")
-                .temperature("2°c")
-                .humidity("91%")
-                .build());
-        climates.put(3, ClimateStatus.builder()
-                .country("SYDNEY")
-                .temperature("22°c")
-                .humidity("49%")
-                .build());
-        climates.put(4, ClimateStatus.builder()
-                .country("TEL AVIV")
-                .temperature("13°c")
-                .humidity("84%")
-                .build());
-        climates.put(5, ClimateStatus.builder()
-                .country("LONDON")
-                .temperature("10°c")
-                .humidity("72%")
-                .build());
     }
 
     private static void checkUsage(int size) {
