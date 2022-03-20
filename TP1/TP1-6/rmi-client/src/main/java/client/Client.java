@@ -1,13 +1,14 @@
 package client;
 
 import lombok.extern.slf4j.Slf4j;
-import shared.VectorMath;
+import shared.VectorOperationResultDto;
+import shared.VectorOperator;
 
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.util.Arrays;
+import java.util.List;
 
 @Slf4j
 public class Client {
@@ -26,24 +27,52 @@ public class Client {
         Registry registry = getRegistry();
 
         // Lookup the exposed weather forecaster object in the registry
-        VectorMath vectorMath = getVectorMath(registry);
+        VectorOperator vectorMath = getVectorMath(registry);
 
-        // Add two vectores
-        Float[] v1 = {9.8F, 5F, 0.7F, 2F};
-        Float[] v2 = {0.2F, 5F, 0.3F, 3F};
         try {
-            Float[] result = vectorMath.add(v1, v2);
-            System.out.println("Result is =" + Arrays.toString(result));
+            String msg = "I am invoking you through RMI";
+            log.info("Client requested echo of <{}>...", msg);
+            log.info("SERVER => {}", vectorMath.echo(msg));
+        } catch (RemoteException e) {
+            log.warn("Remote method invocation failed: {}", e.getMessage());
+            e.printStackTrace();
+        }
+
+        try {
+            log.info("Client asked Server to identify itself...");
+            log.info("SERVER => {}", vectorMath.identifyYourself());
+        } catch (RemoteException e) {
+            log.warn("Remote method invocation failed: {}", e.getMessage());
+            e.printStackTrace();
+        }
+
+        // Define two vectors
+        List<Float> v1 = List.of(9.8F, 5F, 2.7F, 1F, 1F);
+        log.info("Vector 1 = {}", v1);
+        List<Float> v2 = List.of(0.2F, 5F, 2.3F, 1F, 9F);
+        log.info("Vector 2 = {}", v2);
+
+        try {
+            VectorOperationResultDto vectorOperationResultDto = vectorMath.addition(v1, v2);
+            log.info("Addition = {} ", vectorOperationResultDto.toString());
+        } catch (RemoteException e) {
+            log.warn("Remote method invocation failed: {}", e.getMessage());
+            e.printStackTrace();
+        }
+
+        try {
+            VectorOperationResultDto vectorOperationResultDto = vectorMath.subtraction(v1, v2);
+            log.info("Addition = {} ", vectorOperationResultDto.toString());
         } catch (RemoteException e) {
             log.warn("Remote method invocation failed: {}", e.getMessage());
             e.printStackTrace();
         }
     }
 
-    private static VectorMath getVectorMath(Registry registry) {
-        VectorMath vectorMath = null;
+    private static VectorOperator getVectorMath(Registry registry) {
+        VectorOperator vectorMath = null;
         try {
-            vectorMath = (VectorMath) registry.lookup(rmiObjectName);
+            vectorMath = (VectorOperator) registry.lookup(rmiObjectName);
             log.info("Lookup success: remote object {} found at {}:{}", rmiObjectName, ipAddress, port);
         } catch (RemoteException e) {
             log.warn("Lookup failure: remote object '{}' NOT FOUND", rmiObjectName);
@@ -76,6 +105,7 @@ public class Client {
     private static void checkUsage(int size) {
         if (size != 3) panic(USAGE_MESSAGE, null);
     }
+
     private static void panic(String msg, Exception e) {
         log.error(msg);
         if (e != null) {

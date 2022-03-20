@@ -1,6 +1,6 @@
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import rmi.VectorMathImpl;
+import rmi.VectorOperatorImpl;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -10,8 +10,8 @@ import java.util.Random;
 
 @Slf4j
 @RequiredArgsConstructor
-public class Main {
-    private static final String USAGE_MESSAGE = "VectorMathImpl IP address and/or port are missing";
+public class Server {
+    private static final String USAGE_MESSAGE = "VectorOperatorImpl IP address and/or port are missing";
     /* just for fun */
     private static final HashMap<Integer, String> names = new HashMap<>();
     private static int port;
@@ -27,7 +27,7 @@ public class Main {
         System.setProperty("java.rmi.server.hostname", ipAddress);
 
         // Create a new forecaster with randomized data
-        VectorMathImpl vectorMath = getVectorMath();
+        VectorOperatorImpl vectorMath = getVectorMath();
 
         Registry registry = createRegistry(vectorMath);
 
@@ -37,7 +37,7 @@ public class Main {
         log.info("RMI server running at [{}:{}] ...", vectorMath.getIpAddress(), vectorMath.getPort());
     }
 
-    private static void bind(VectorMathImpl vectorMath, Registry registry) {
+    private static void bind(VectorOperatorImpl vectorMath, Registry registry) {
         try {
             // Bind the forecaster to a name in order to be found from remote clients by that name
             registry.rebind(vectorMath.getName(), vectorMath);
@@ -47,7 +47,7 @@ public class Main {
         }
     }
 
-    private static Registry createRegistry(VectorMathImpl vectorMath) {
+    private static Registry createRegistry(VectorOperatorImpl vectorMath) {
         // Create a new registry at received port
         Registry registry = null;
         try {
@@ -59,17 +59,16 @@ public class Main {
         return registry;
     }
 
-    private static VectorMathImpl getVectorMath() {
-        VectorMathImpl vectorMath = null;
+    private static VectorOperatorImpl getVectorMath() {
+        VectorOperatorImpl vectorMath = null;
         try {
-            vectorMath = new VectorMathImpl(pickNameAtRandom(), ipAddress, port);
+            vectorMath = new VectorOperatorImpl(pickNameAtRandom(), ipAddress, port);
             log.info("Weather forecaster {} initialized successfully!", vectorMath.getName());
         } catch (RemoteException e) {
             panic("Error while initializing weather forecaster", e);
         }
         return vectorMath;
     }
-
 
     private static String pickNameAtRandom() {
         Random random = new Random();
