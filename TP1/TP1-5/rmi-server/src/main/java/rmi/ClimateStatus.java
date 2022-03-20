@@ -14,10 +14,10 @@ public class ClimateStatus {
 
     @Override
     public String toString() {
-        StringJoiner stringJoiner = new StringJoiner("\n");
+        StringJoiner stringJoiner = new StringJoiner(" ");
         return stringJoiner.add("Current climate conditions in " + country + " are:")
-                .add("\tTemperature: " + temperature)
-                .add("\tHumidity: " + humidity)
+                .add("Temperature: " + temperature + ".")
+                .add("Humidity: " + humidity + ".")
                 .toString();
     }
 }

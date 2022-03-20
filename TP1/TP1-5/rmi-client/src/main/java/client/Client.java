@@ -27,9 +27,27 @@ public class Client {
         // Lookup the exposed weather forecaster object in the registry
         WeatherForecaster weatherForecaster = getWeatherForecaster(registry);
 
+        try {
+            String msg = "I am invoking you through RMI";
+            log.info("Client requested echo of <{}>...", msg);
+            log.info("SERVER => {}", weatherForecaster.echo(msg));
+        } catch (RemoteException e) {
+            log.warn("Remote method invocation failed: {}", e.getMessage());
+            e.printStackTrace();
+        }
+
+        try {
+            log.info("Client asked Server to identify itself...");
+            log.info("SERVER => {}", weatherForecaster.identifyYourself());
+        } catch (RemoteException e) {
+            log.warn("Remote method invocation failed: {}", e.getMessage());
+            e.printStackTrace();
+        }
+
         // Get climate conditions where the server is located at
         try {
-            System.out.println(weatherForecaster.getClimateConditions());
+            log.info("Client asked Server for a climate conditions...");
+            log.info("SERVER => {}", weatherForecaster.getClimateConditions());
         } catch (RemoteException e) {
             log.warn("Remote method invocation failed: {}", e.getMessage());
             e.printStackTrace();

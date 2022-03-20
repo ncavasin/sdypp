@@ -23,11 +23,9 @@ public class IdentificationDto {
     public String toString() {
         StringJoiner stringJoiner = new StringJoiner(". ");
         return stringJoiner
-                .add(">> ")
                 .add("Hello! My name is PID " + pid)
                 .add("My friends call me " + name + " (RMI lookup value)")
                 .add("You can find me at " + ipAddress + ":" + port + " (RMI TCP socket)")
-                .add("<<")
                 .toString();
     }
 }
