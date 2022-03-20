@@ -1,6 +1,6 @@
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import rmi.VectorOperatorImpl;
+import rmi.TaskProcessorImpl;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -11,7 +11,7 @@ import java.util.Random;
 @Slf4j
 @RequiredArgsConstructor
 public class Server {
-    private static final String USAGE_MESSAGE = "VectorOperatorImpl IP address and/or port are missing";
+    private static final String USAGE_MESSAGE = "TaskProcessorImpl IP address and/or port are missing";
     /* just for fun */
     private static final HashMap<Integer, String> names = new HashMap<>();
     private static int port;
@@ -27,7 +27,7 @@ public class Server {
         System.setProperty("java.rmi.server.hostname", ipAddress);
 
         // Create a new forecaster with randomized data
-        VectorOperatorImpl vectorMath = getVectorMath();
+        TaskProcessorImpl vectorMath = getVectorMath();
 
         Registry registry = createRegistry(vectorMath);
 
@@ -37,7 +37,7 @@ public class Server {
         log.info("RMI server running at [{}:{}] ...", vectorMath.getIpAddress(), vectorMath.getPort());
     }
 
-    private static void bind(VectorOperatorImpl vectorMath, Registry registry) {
+    private static void bind(TaskProcessorImpl vectorMath, Registry registry) {
         try {
             // Bind the forecaster to a name in order to be found from remote clients by that name
             registry.rebind(vectorMath.getName(), vectorMath);
@@ -47,7 +47,7 @@ public class Server {
         }
     }
 
-    private static Registry createRegistry(VectorOperatorImpl vectorMath) {
+    private static Registry createRegistry(TaskProcessorImpl vectorMath) {
         // Create a new registry at received port
         Registry registry = null;
         try {
@@ -59,10 +59,10 @@ public class Server {
         return registry;
     }
 
-    private static VectorOperatorImpl getVectorMath() {
-        VectorOperatorImpl vectorMath = null;
+    private static TaskProcessorImpl getVectorMath() {
+        TaskProcessorImpl vectorMath = null;
         try {
-            vectorMath = new VectorOperatorImpl(pickNameAtRandom(), ipAddress, port);
+            vectorMath = new TaskProcessorImpl(pickNameAtRandom(), ipAddress, port);
             log.info("Weather forecaster {} initialized successfully!", vectorMath.getName());
         } catch (RemoteException e) {
             panic("Error while initializing weather forecaster", e);
