@@ -3,15 +3,14 @@ package rmi;
 import dto.IdentificationDto;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import shared.WeatherForecaster;
+import shared.VectorMath;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.StringJoiner;
 
 @EqualsAndHashCode(callSuper = false)
 @Data
-public class WeatherForecasterImpl extends UnicastRemoteObject implements WeatherForecaster {
+public class VectorMathImpl extends UnicastRemoteObject implements VectorMath {
 
     private int port;
     private String ipAddress;
@@ -19,13 +18,12 @@ public class WeatherForecasterImpl extends UnicastRemoteObject implements Weathe
     private String name;
     private ClimateStatus climateStatus;
 
-    public WeatherForecasterImpl(String name, ClimateStatus climateStatuses, String ipAddress, int port) throws RemoteException {
+    public VectorMathImpl(String name, String ipAddress, int port) throws RemoteException {
         super();
         setPid(ProcessHandle.current().pid());
         setIpAddress(ipAddress);
         setPort(port);
         setName(name);
-        setClimateStatus(climateStatuses);
     }
 
     @Override
@@ -45,16 +43,30 @@ public class WeatherForecasterImpl extends UnicastRemoteObject implements Weathe
     }
 
     @Override
-    public String getClimateConditions() {
-        return getClimateStatus().toString();
+    public Float[] add(Float[] v1, Float[] v2) {
+        if (lengthsDiffer(v1, v2))
+            return new Float[0];
+
+        Float[] result = new Float[v1.length];
+        for (int i = 0; i < v1.length; i++) {
+            result[i] = v1[i] + v2[i];
+        }
+        return result;
     }
 
     @Override
-    public String getFullReport() {
-        StringJoiner stringJoiner = new StringJoiner("\n");
-        return stringJoiner
-                .add(identifyYourself())
-                .add(getClimateConditions())
-                .toString();
+    public Float[] substract(Float[] v1, Float[] v2) {
+        if (lengthsDiffer(v1, v2))
+            return new Float[0];
+
+        Float[] result = new Float[v1.length];
+        for (int i = 0; i < v1.length; i++) {
+            result[i] = v1[i] - v2[i];
+        }
+        return result;
+    }
+
+    private boolean lengthsDiffer(Float[] v1, Float[] v2) {
+        return v1.length != v2.length;
     }
 }
