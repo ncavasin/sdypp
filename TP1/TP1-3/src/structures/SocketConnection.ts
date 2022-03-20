@@ -1,4 +1,5 @@
 import { Socket } from "socket.io";
+import Queue, { Message } from "./Queue";
 import Server from "./Server";
 
 export default class SocketConnection {
@@ -31,6 +32,12 @@ export default class SocketConnection {
 		return this._name;
 	}
 
+	get queuedMessages(): Queue | undefined {
+		if (!this.name) return;
+
+		return this.server.getUserInboundMessages(this.name)!;
+	}
+
 	setName(name: string) {
 		this._name = name;
 	}
@@ -40,6 +47,7 @@ export default class SocketConnection {
 		this.socket.on('setName', this.handleSetName.bind(this));
 		this.socket.on('sendMessage', this.handleSendMessage.bind(this));
 		this.socket.on('disconnect', this.handleDisconnect.bind(this));
+		this.socket.on('retrieveQueuedMessages', this.handleRetrieveQueuedMessages.bind(this));
 	}
 
 	private handleSetName(name: string, ackCallback: (error?: string, message?: string) => void) {
@@ -49,21 +57,46 @@ export default class SocketConnection {
 		if (nameInUse) return ackCallback('Name already in use');
 
 		this.setName(name);
+
+		// Check if there are already inbound messages queue to this name
+		const hasExistingQueue = this.queuedMessages;
+		// If there are no messages to this user --> create the messages queue
+		if (!hasExistingQueue) this.server.createInboundMessagesQueue(this.name!);
+
 		return ackCallback(undefined, 'Name successfully set');
 	}
 
-	private handleSendMessage(message: string) {
-		if (!this.name) return;
+	private handleSendMessage(destinatory: string, message: string) {
+		if (!destinatory || !this.name) return;
 
-		console.log(`${this.name} mandó un mensaje: ${message}`);
-		this.socket.emit('messageResponse', message);
+		console.log(`${this.name} --> ${destinatory}: ${message}`);
+		this.server.sendMessageToUser(destinatory, { message, sender: this.name, date: new Date() });
 	}
 
 	private handleDisconnect() {
 		this.server.deleteConnection(this.connectionUuid);
 	}
 
+	private handleRetrieveQueuedMessages(ackCallback: (error?: string, payload?: any) => void) {
+		if (!this.name) return ackCallback('A name has not been set yet');
+
+		const queuedMessagesCopy: Queue = this.queuedMessages!.clone();
+
+		const allMessages: Message[] = [];
+
+		while (!queuedMessagesCopy.isEmpty()) {
+			const shiftedItem = queuedMessagesCopy.pop();
+			allMessages.push(shiftedItem!);
+		}
+
+		return ackCallback(undefined, allMessages);
+	}
+
 	public disconnectSocket() {
 		this.socket.disconnect();
+	}
+
+	public sendMessage(message: Message) {
+		this.socket.emit('messageReceived', message)
 	}
 }
