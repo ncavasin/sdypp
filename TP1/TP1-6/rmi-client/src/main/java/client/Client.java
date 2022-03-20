@@ -1,12 +1,13 @@
 package client;
 
 import lombok.extern.slf4j.Slf4j;
-import shared.WeatherForecaster;
+import shared.VectorMath;
 
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.Arrays;
 
 @Slf4j
 public class Client {
@@ -25,21 +26,24 @@ public class Client {
         Registry registry = getRegistry();
 
         // Lookup the exposed weather forecaster object in the registry
-        WeatherForecaster weatherForecaster = getWeatherForecaster(registry);
+        VectorMath vectorMath = getVectorMath(registry);
 
-        // Get climate conditions where the server is located at
+        // Add two vectores
+        Float[] v1 = {9.8F, 5F, 0.7F, 2F};
+        Float[] v2 = {0.2F, 5F, 0.3F, 3F};
         try {
-            System.out.println(weatherForecaster.getClimateConditions());
+            Float[] result = vectorMath.add(v1, v2);
+            System.out.println("Result is =" + Arrays.toString(result));
         } catch (RemoteException e) {
             log.warn("Remote method invocation failed: {}", e.getMessage());
             e.printStackTrace();
         }
     }
 
-    private static WeatherForecaster getWeatherForecaster(Registry registry) {
-        WeatherForecaster weatherForecaster = null;
+    private static VectorMath getVectorMath(Registry registry) {
+        VectorMath vectorMath = null;
         try {
-            weatherForecaster = (WeatherForecaster) registry.lookup(rmiObjectName);
+            vectorMath = (VectorMath) registry.lookup(rmiObjectName);
             log.info("Lookup success: remote object {} found at {}:{}", rmiObjectName, ipAddress, port);
         } catch (RemoteException e) {
             log.warn("Lookup failure: remote object '{}' NOT FOUND", rmiObjectName);
@@ -47,7 +51,7 @@ public class Client {
         } catch (NotBoundException e) {
             e.printStackTrace();
         }
-        return weatherForecaster;
+        return vectorMath;
     }
 
     private static Registry getRegistry() {
@@ -72,9 +76,13 @@ public class Client {
     private static void checkUsage(int size) {
         if (size != 3) panic(USAGE_MESSAGE, null);
     }
-
-    private static void panic(String usageMessage, Exception e) {
-
+    private static void panic(String msg, Exception e) {
+        log.error(msg);
+        if (e != null) {
+            log.info(e.getMessage());
+            e.printStackTrace();
+        }
+        System.exit(1);
     }
 
 }
