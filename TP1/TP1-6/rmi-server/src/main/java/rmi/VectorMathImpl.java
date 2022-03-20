@@ -16,7 +16,6 @@ public class VectorMathImpl extends UnicastRemoteObject implements VectorMath {
     private String ipAddress;
     private long pid;
     private String name;
-    private ClimateStatus climateStatus;
 
     public VectorMathImpl(String name, String ipAddress, int port) throws RemoteException {
         super();
