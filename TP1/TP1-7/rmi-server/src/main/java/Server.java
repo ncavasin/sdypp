@@ -27,47 +27,47 @@ public class Server {
         System.setProperty("java.rmi.server.hostname", ipAddress);
 
         // Create a new forecaster with randomized data
-        TaskProcessorImpl vectorMath = getVectorMath();
+        TaskProcessorImpl taskProcessor = getTaskProcessor();
 
-        Registry registry = createRegistry(vectorMath);
+        Registry registry = createRegistry(taskProcessor);
 
         // Bind exported stub to received port to accept incoming consumptions from client through TCP sockets
-        bind(vectorMath, registry);
+        bind(taskProcessor, registry);
 
-        log.info("RMI server running at [{}:{}] ...", vectorMath.getIpAddress(), vectorMath.getPort());
+        log.info("RMI server running at [{}:{}] ...", taskProcessor.getIpAddress(), taskProcessor.getPort());
     }
 
-    private static void bind(TaskProcessorImpl vectorMath, Registry registry) {
+    private static void bind(TaskProcessorImpl taskProcessor, Registry registry) {
         try {
-            // Bind the forecaster to a name in order to be found from remote clients by that name
-            registry.rebind(vectorMath.getName(), vectorMath);
-            log.info("Weather forecaster bounded successfully to port {}. Client lookup name is: {}.", vectorMath.getPort(), vectorMath.getName());
+            // Bind the task processor to a name in order to be found from remote clients by that name
+            registry.rebind(taskProcessor.getName(), taskProcessor);
+            log.info("Task processor bounded successfully to port {}. Client lookup name is: {}.", taskProcessor.getPort(), taskProcessor.getName());
         } catch (RemoteException e) {
-            panic(String.format("FATAL: failed to bind weather forecaster to name %s at port %d", vectorMath.getName(), vectorMath.getPort()), e);
+            panic(String.format("FATAL: failed to bind Task processor to name %s at port %d", taskProcessor.getName(), taskProcessor.getPort()), e);
         }
     }
 
-    private static Registry createRegistry(TaskProcessorImpl vectorMath) {
+    private static Registry createRegistry(TaskProcessorImpl taskProcessor) {
         // Create a new registry at received port
         Registry registry = null;
         try {
-            registry = LocateRegistry.createRegistry(vectorMath.getPort());
-            log.info("Registry created successfully at port {}.", vectorMath.getPort());
+            registry = LocateRegistry.createRegistry(taskProcessor.getPort());
+            log.info("Registry created successfully at port {}.", taskProcessor.getPort());
         } catch (RemoteException e) {
-            panic(String.format("FATAL Could not create a new Registry at port %d", vectorMath.getPort()), e);
+            panic(String.format("FATAL Could not create a new Registry at port %d", taskProcessor.getPort()), e);
         }
         return registry;
     }
 
-    private static TaskProcessorImpl getVectorMath() {
-        TaskProcessorImpl vectorMath = null;
+    private static TaskProcessorImpl getTaskProcessor() {
+        TaskProcessorImpl taskProcessor = null;
         try {
-            vectorMath = new TaskProcessorImpl(pickNameAtRandom(), ipAddress, port);
-            log.info("Weather forecaster {} initialized successfully!", vectorMath.getName());
+            taskProcessor = new TaskProcessorImpl(pickNameAtRandom(), ipAddress, port);
+            log.info("Task processor {} initialized successfully!", taskProcessor.getName());
         } catch (RemoteException e) {
-            panic("Error while initializing weather forecaster", e);
+            panic("Error while initializing Task processor", e);
         }
-        return vectorMath;
+        return taskProcessor;
     }
 
     private static String pickNameAtRandom() {
