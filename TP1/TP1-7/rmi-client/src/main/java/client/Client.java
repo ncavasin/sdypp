@@ -1,5 +1,6 @@
 package client;
 
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import shared.TaskProcessor;
@@ -9,12 +10,12 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
+@Slf4j
 public class Client {
     private static final String USAGE_MESSAGE = "Missing at least one required argument: <IP_address> <port> <rmi_server_name>";
     private static String ipAddress;
     private static int port;
     private static String rmiObjectName;
-    private static final Logger log = LoggerFactory.getLogger(Client.class);
 
     public static void main(String[] args) {
         checkUsage(args.length);
