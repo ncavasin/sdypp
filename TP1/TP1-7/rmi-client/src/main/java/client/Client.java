@@ -1,28 +1,25 @@
 package client;
 
-import lombok.extern.slf4j.Slf4j;
-import shared.Task;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import shared.TaskProcessor;
 
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.util.List;
 
-@Slf4j
 public class Client {
     private static final String USAGE_MESSAGE = "Missing at least one required argument: <IP_address> <port> <rmi_server_name>";
     private static String ipAddress;
     private static int port;
     private static String rmiObjectName;
+    private static final Logger log = LoggerFactory.getLogger(Client.class);
 
     public static void main(String[] args) {
         checkUsage(args.length);
         setUp(args);
-
         log.info("Bootstrapping RMI client...");
-
         // Locate the RMI registry using received socket
         Registry registry = getRegistry();
 
@@ -45,7 +42,6 @@ public class Client {
             log.warn("Remote method invocation failed: {}", e.getMessage());
             e.printStackTrace();
         }
-
     }
 
     private static TaskProcessor getTaskProcessor(Registry registry) {
