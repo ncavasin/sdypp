@@ -11,7 +11,7 @@ import java.util.Random;
 
 @Slf4j
 @RequiredArgsConstructor
-public class Main {
+public class Server {
     private static final String USAGE_MESSAGE = "WeatherForecasterImpl IP address and/or port are missing";
     /* just for fun */
     private static final HashMap<Integer, String> names = new HashMap<>();
