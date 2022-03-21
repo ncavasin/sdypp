@@ -29,7 +29,6 @@ public class Server {
 
         System.setProperty("java.rmi.server.hostname", ipAddress);
 
-
         // Create a new forecaster with randomized data
         TaskProcessorImpl taskProcessor = getTaskProcessor();
 
