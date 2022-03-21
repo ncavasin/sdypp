@@ -1,6 +1,5 @@
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import rmi.TaskProcessorImpl;
 
 import java.rmi.RemoteException;
@@ -9,6 +8,8 @@ import java.rmi.registry.Registry;
 import java.util.HashMap;
 import java.util.Random;
 
+
+@Slf4j
 @RequiredArgsConstructor
 public class Server {
     private static final String USAGE_MESSAGE = "TaskProcessorImpl IP address and/or port are missing";
@@ -17,8 +18,6 @@ public class Server {
     private static int port;
     // Represents the current IP address of the system -> required for the registry
     private static String ipAddress;
-
-    private static final Logger log = LoggerFactory.getLogger(Server.class);
 
 
     public static void main(String[] args) {
