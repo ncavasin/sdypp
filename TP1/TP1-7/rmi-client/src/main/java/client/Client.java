@@ -1,6 +1,7 @@
 package client;
 
 import lombok.extern.slf4j.Slf4j;
+import shared.Task;
 import shared.TaskProcessor;
 
 import java.rmi.NotBoundException;
@@ -25,7 +26,7 @@ public class Client {
         // Locate the RMI registry using received socket
         Registry registry = getRegistry();
 
-        // Lookup the exposed weather forecaster object in the registry
+        // Lookup the exposed task processor object in the registry
         TaskProcessor taskProcessor = getTaskProcessor(registry);
 
         try {
@@ -45,13 +46,6 @@ public class Client {
             e.printStackTrace();
         }
 
-        // Define two vectors
-        List<Float> v1 = List.of(9.8F, 5F, 10F, 1F, 1F);
-        log.info("Vector 1 = {}.", v1);
-        List<Float> v2 = List.of(0.2F, 5F, 17F, 1F, 9F);
-        log.info("Vector 2 = {}.\n\n", v2);
-
-        System.out.println("Conclusion: despite of the fact that Server modifies the vector's content, as they are passed by value and not by reference, the Client content won't be modified but the result will due to the Server is using those modified values! ");
     }
 
     private static TaskProcessor getTaskProcessor(Registry registry) {
@@ -99,5 +93,4 @@ public class Client {
         }
         System.exit(1);
     }
-
 }
