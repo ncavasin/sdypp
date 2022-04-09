@@ -36,6 +36,6 @@ export default class Queue {
 	}
 
 	public clone(): Queue {
-		return new Queue(this.items);
+		return new Queue([ ...this.items ]);
 	}
 }

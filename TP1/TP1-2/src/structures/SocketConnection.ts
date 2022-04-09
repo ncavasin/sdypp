@@ -19,12 +19,11 @@ export default class SocketConnection {
 	}
 
 	private handleSendMessage(message: string) {
-		console.log(`Un cliente mandó un mensaje: ${message}`);
 		
 		this.socket.emit('messageResponse', message);
 	}
 
 	private handleDisconnect() {
-		console.log('connection terminated!');
+		// console.log('connection terminated!');
 	}
 }

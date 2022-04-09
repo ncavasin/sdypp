@@ -68,8 +68,6 @@ export default class SocketConnection {
 
 	private handleSendMessage(destinatory: string, message: string) {
 		if (!destinatory || !this.name) return;
-
-		console.log(`${this.name} --> ${destinatory}: ${message}`);
 		this.server.sendMessageToUser(destinatory, { message, sender: this.name, date: new Date() });
 	}
 

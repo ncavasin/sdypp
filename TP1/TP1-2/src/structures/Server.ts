@@ -43,7 +43,6 @@ export default class Server {
 	}
 
 	private handleNewConnection(socket: Socket) {
-		console.log('new connection');
 		const socketConnection = new SocketConnection(socket);
 	}
 }
