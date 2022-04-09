@@ -41,3 +41,5 @@ node_modules
 
 # TS compiled files
 dist
+
+*.log

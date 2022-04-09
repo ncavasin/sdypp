@@ -1,7 +1,7 @@
 package client;
 
 import lombok.extern.slf4j.Slf4j;
-import shared.WeatherForecaster;
+import shared.TaskProcessor;
 
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -18,19 +18,17 @@ public class Client {
     public static void main(String[] args) {
         checkUsage(args.length);
         setUp(args);
-
         log.info("Bootstrapping RMI client...");
-
         // Locate the RMI registry using received socket
         Registry registry = getRegistry();
 
-        // Lookup the exposed weather forecaster object in the registry
-        WeatherForecaster weatherForecaster = getWeatherForecaster(registry);
+        // Lookup the exposed task processor object in the registry
+        TaskProcessor taskProcessor = getTaskProcessor(registry);
 
         try {
             String msg = "I am invoking you through RMI";
             log.info("Client requested echo of <{}>...", msg);
-            log.info("SERVER => {}", weatherForecaster.echo(msg));
+            log.info("SERVER => {}", taskProcessor.echo(msg));
         } catch (RemoteException e) {
             log.warn("Remote method invocation failed: {}", e.getMessage());
             e.printStackTrace();
@@ -38,26 +36,17 @@ public class Client {
 
         try {
             log.info("Client asked Server to identify itself...");
-            log.info("SERVER => {}", weatherForecaster.identifyYourself());
-        } catch (RemoteException e) {
-            log.warn("Remote method invocation failed: {}", e.getMessage());
-            e.printStackTrace();
-        }
-
-        // Get climate conditions where the server is located at
-        try {
-            log.info("Client asked Server for a climate conditions...");
-            log.info("SERVER => {}", weatherForecaster.getClimateConditions());
+            log.info("SERVER => {}", taskProcessor.identifyYourself());
         } catch (RemoteException e) {
             log.warn("Remote method invocation failed: {}", e.getMessage());
             e.printStackTrace();
         }
     }
 
-    private static WeatherForecaster getWeatherForecaster(Registry registry) {
-        WeatherForecaster weatherForecaster = null;
+    private static TaskProcessor getTaskProcessor(Registry registry) {
+        TaskProcessor taskProcessor = null;
         try {
-            weatherForecaster = (WeatherForecaster) registry.lookup(rmiObjectName);
+            taskProcessor = (TaskProcessor) registry.lookup(rmiObjectName);
             log.info("Lookup success: remote object {} found at {}:{}", rmiObjectName, ipAddress, port);
         } catch (RemoteException e) {
             log.warn("Lookup failure: remote object '{}' NOT FOUND", rmiObjectName);
@@ -65,7 +54,7 @@ public class Client {
         } catch (NotBoundException e) {
             e.printStackTrace();
         }
-        return weatherForecaster;
+        return taskProcessor;
     }
 
     private static Registry getRegistry() {
@@ -91,8 +80,12 @@ public class Client {
         if (size != 3) panic(USAGE_MESSAGE, null);
     }
 
-    private static void panic(String usageMessage, Exception e) {
-
+    private static void panic(String msg, Exception e) {
+        log.error(msg);
+        if (e != null) {
+            log.info(e.getMessage());
+            e.printStackTrace();
+        }
+        System.exit(1);
     }
-
 }

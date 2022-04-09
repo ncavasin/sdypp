@@ -1,12 +1,14 @@
 package client;
 
 import lombok.extern.slf4j.Slf4j;
-import shared.WeatherForecaster;
+import shared.VectorOperationResultDto;
+import shared.VectorOperator;
 
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.List;
 
 @Slf4j
 public class Client {
@@ -25,12 +27,12 @@ public class Client {
         Registry registry = getRegistry();
 
         // Lookup the exposed weather forecaster object in the registry
-        WeatherForecaster weatherForecaster = getWeatherForecaster(registry);
+        VectorOperator vectorMath = getVectorMath(registry);
 
         try {
             String msg = "I am invoking you through RMI";
             log.info("Client requested echo of <{}>...", msg);
-            log.info("SERVER => {}", weatherForecaster.echo(msg));
+            log.info("SERVER => {}", vectorMath.echo(msg));
         } catch (RemoteException e) {
             log.warn("Remote method invocation failed: {}", e.getMessage());
             e.printStackTrace();
@@ -38,26 +40,45 @@ public class Client {
 
         try {
             log.info("Client asked Server to identify itself...");
-            log.info("SERVER => {}", weatherForecaster.identifyYourself());
+            log.info("SERVER => {}", vectorMath.identifyYourself());
         } catch (RemoteException e) {
             log.warn("Remote method invocation failed: {}", e.getMessage());
             e.printStackTrace();
         }
 
-        // Get climate conditions where the server is located at
+        // Define two vectors
+        List<Float> v1 = List.of(9.8F, 5F, 10F, 1F, 1F);
+        log.info("Vector 1 = {}.", v1);
+        List<Float> v2 = List.of(0.2F, 5F, 17F, 1F, 9F);
+        log.info("Vector 2 = {}.\n\n", v2);
+
         try {
-            log.info("Client asked Server for a climate conditions...");
-            log.info("SERVER => {}", weatherForecaster.getClimateConditions());
+            VectorOperationResultDto vectorOperationResultDto = vectorMath.addition(v1, v2);
+            log.info("Received V1 = {}", vectorOperationResultDto.getV1());
+            log.info("Received V2 = {}", vectorOperationResultDto.getV2());
+            log.info("Addition = {}\n\n", vectorOperationResultDto.getResult());
         } catch (RemoteException e) {
             log.warn("Remote method invocation failed: {}", e.getMessage());
             e.printStackTrace();
         }
+
+        try {
+            VectorOperationResultDto vectorOperationResultDto = vectorMath.subtraction(v1, v2);
+            log.info("Received V1 = {}", vectorOperationResultDto.getV1());
+            log.info("Received V2 = {}", vectorOperationResultDto.getV2());
+            log.info("Subtraction = {}\n\n", vectorOperationResultDto.getResult());
+        } catch (RemoteException e) {
+            log.warn("Remote method invocation failed: {}", e.getMessage());
+            e.printStackTrace();
+        }
+
+        System.out.println("Conclusion: despite of the fact that Server modifies the vector's content, as they are passed by value and not by reference, the Client content won't be modified but the result will due to the Server is using those modified values! ");
     }
 
-    private static WeatherForecaster getWeatherForecaster(Registry registry) {
-        WeatherForecaster weatherForecaster = null;
+    private static VectorOperator getVectorMath(Registry registry) {
+        VectorOperator vectorMath = null;
         try {
-            weatherForecaster = (WeatherForecaster) registry.lookup(rmiObjectName);
+            vectorMath = (VectorOperator) registry.lookup(rmiObjectName);
             log.info("Lookup success: remote object {} found at {}:{}", rmiObjectName, ipAddress, port);
         } catch (RemoteException e) {
             log.warn("Lookup failure: remote object '{}' NOT FOUND", rmiObjectName);
@@ -65,7 +86,7 @@ public class Client {
         } catch (NotBoundException e) {
             e.printStackTrace();
         }
-        return weatherForecaster;
+        return vectorMath;
     }
 
     private static Registry getRegistry() {
@@ -91,8 +112,13 @@ public class Client {
         if (size != 3) panic(USAGE_MESSAGE, null);
     }
 
-    private static void panic(String usageMessage, Exception e) {
-
+    private static void panic(String msg, Exception e) {
+        log.error(msg);
+        if (e != null) {
+            log.info(e.getMessage());
+            e.printStackTrace();
+        }
+        System.exit(1);
     }
 
 }
