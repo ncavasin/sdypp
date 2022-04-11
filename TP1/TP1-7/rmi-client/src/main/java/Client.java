@@ -1,5 +1,3 @@
-package client;
-
 import lombok.extern.slf4j.Slf4j;
 import shared.TaskProcessor;
 

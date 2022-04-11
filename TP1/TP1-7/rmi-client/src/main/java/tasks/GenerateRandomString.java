@@ -1,4 +1,4 @@
-package client.tasks;
+package tasks;
 
 import org.apache.commons.lang.RandomStringUtils;
 import shared.Task;

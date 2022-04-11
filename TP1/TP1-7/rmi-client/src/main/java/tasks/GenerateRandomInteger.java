@@ -1,4 +1,4 @@
-package client.tasks;
+package tasks;
 
 import shared.Task;
 
