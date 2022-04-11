@@ -1,17 +1,20 @@
-import lombok.extern.slf4j.Slf4j;
 import shared.TaskProcessor;
 
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.logging.Logger;
 
-@Slf4j
+
+//@Slf4j
 public class Client {
     private static final String USAGE_MESSAGE = "Missing at least one required argument: <IP_address> <port> <rmi_server_name>";
     private static String ipAddress;
     private static int port;
     private static String rmiObjectName;
+    private static final Logger log = Logger.getLogger(Client.class.getName());
+
 
     public static void main(String[] args) {
         checkUsage(args.length);
@@ -25,18 +28,18 @@ public class Client {
 
         try {
             String msg = "I am invoking you through RMI";
-            log.info("Client requested echo of <{}>...", msg);
-            log.info("SERVER => {}", taskProcessor.echo(msg));
+            log.info(String.format("Client requested echo of <%s>...", msg));
+            log.info(String.format("SERVER => %s", taskProcessor.echo(msg)));
         } catch (RemoteException e) {
-            log.warn("Remote method invocation failed: {}", e.getMessage());
+            log.info(String.format("Remote method invocation failed: %s", e.getMessage()));
             e.printStackTrace();
         }
 
         try {
             log.info("Client asked Server to identify itself...");
-            log.info("SERVER => {}", taskProcessor.identifyYourself());
+            log.info(String.format("SERVER => %s", taskProcessor.identifyYourself()));
         } catch (RemoteException e) {
-            log.warn("Remote method invocation failed: {}", e.getMessage());
+            log.info(String.format("Remote method invocation failed: %s", e.getMessage()));
             e.printStackTrace();
         }
     }
@@ -45,10 +48,10 @@ public class Client {
         TaskProcessor taskProcessor = null;
         try {
             taskProcessor = (TaskProcessor) registry.lookup(rmiObjectName);
-            log.info("Lookup success: remote object {} found at {}:{}", rmiObjectName, ipAddress, port);
+            log.info(String.format("Lookup success: remote object %s found at %s:%d", rmiObjectName, ipAddress, port));
         } catch (RemoteException e) {
-            log.warn("Lookup failure: remote object '{}' NOT FOUND", rmiObjectName);
-            log.warn(e.getMessage());
+            log.info(String.format("Lookup failure: remote object '%s' NOT FOUND", rmiObjectName));
+            log.info(e.getMessage());
         } catch (NotBoundException e) {
             e.printStackTrace();
         }
@@ -60,7 +63,7 @@ public class Client {
         Registry registry = null;
         try {
             registry = LocateRegistry.getRegistry(ipAddress, port);
-            log.info("Registry located at socket {}:{}.", ipAddress, port);
+            log.info(String.format("Registry located at socket %s:%d.", ipAddress, port));
         } catch (RemoteException e) {
             panic(String.format("FATAL Could not find Registry at socket %s:%d", ipAddress, port), e);
         }
@@ -79,7 +82,7 @@ public class Client {
     }
 
     private static void panic(String msg, Exception e) {
-        log.error(msg);
+        log.info(msg);
         if (e != null) {
             log.info(e.getMessage());
             e.printStackTrace();

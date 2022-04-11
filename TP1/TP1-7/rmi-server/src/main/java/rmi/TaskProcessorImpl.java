@@ -3,22 +3,22 @@ package rmi;
 import dto.IdentificationDto;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.extern.slf4j.Slf4j;
 import shared.Task;
 import shared.TaskProcessor;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.logging.Logger;
 
 @EqualsAndHashCode(callSuper = false)
 @Data
-@Slf4j
 public class TaskProcessorImpl extends UnicastRemoteObject implements TaskProcessor {
 
     private int port;
     private String ipAddress;
     private long pid;
     private String name;
+    private static final Logger log = Logger.getLogger(TaskProcessorImpl.class.getName());
 
     public TaskProcessorImpl(String name, String ipAddress, int port) throws RemoteException {
         super();
@@ -30,7 +30,7 @@ public class TaskProcessorImpl extends UnicastRemoteObject implements TaskProces
 
     @Override
     public String echo(String msg) {
-        log.info("Echo() invoked. Received message is: <{}>.", msg);
+        log.info(String.format("Echo() invoked. Received message is: <%s>.", msg));
         return "...echoing back message <" + msg + ">. Goodbye!";
     }
 

@@ -45,11 +45,6 @@
             <version>1.18.22</version>
         </dependency>
         <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.2.11</version>
-        </dependency>
-        <dependency>
             <groupId>com.rmi</groupId>
             <artifactId>rmi-shared</artifactId>
             <version>1.0-SNAPSHOT</version>
