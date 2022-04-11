@@ -15,6 +15,6 @@ public interface TaskProcessor extends Remote {
     // Let the client know who the implementer is
     String identifyYourself() throws RemoteException;
 
-    <T> T executeTask(Task <T> t)  throws RemoteException;;
+    <T> T executeTask(Task <T> t)  throws RemoteException;
 
 }

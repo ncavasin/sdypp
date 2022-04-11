@@ -13,7 +13,6 @@
     <modules>
         <module>rmi-server</module>
         <module>rmi-client</module>
-        <module>rmi-shared</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
