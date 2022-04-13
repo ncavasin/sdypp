@@ -1,6 +1,6 @@
-package com.example.demo;
+package com.sdypp.code;
 
-import com.example.demo.rmi.VectorOperatorImpl;
+import com.sdypp.code.rmi.VectorOperatorImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

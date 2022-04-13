@@ -1,8 +1,8 @@
-package com.example.demo.rmi;
+package com.sdypp.code.rmi;
 
-import com.example.demo.dto.IdentificationDto;
-import com.example.demo.shared.VectorOperationResultDto;
-import com.example.demo.shared.VectorOperator;
+import com.sdypp.code.dto.IdentificationDto;
+import com.sdypp.code.shared.VectorOperationResultDto;
+import com.sdypp.code.shared.VectorOperator;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;

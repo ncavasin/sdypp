@@ -1,4 +1,4 @@
-package com.example.demo.shared;
+package com.sdypp.code.shared;
 
 import lombok.Builder;
 import lombok.Getter;
