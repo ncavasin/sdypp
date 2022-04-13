@@ -26,7 +26,25 @@ So, how does an object becomes RMI*able*? Simple, implementing Java's built-in `
 
 # Usage:
 
-Containerize both jars in separate services and make them interact 
+Server:
+    
+```bash
+cd TP1-5-Server
+docker build . -t rmi-server-e5
+docker run -e ip="IP_ADDRESS" -e port=PORT_NUMBER rmi-server-e5
+```
+**Note**: Watch the differences between the two params. Port number must NOT have any `"`.
+
+Client:
+
+```bash
+cd TP1-5-Client
+docker build . -t rmi-client-e5
+docker run -e ip="IP_ADDRESS" -e port=PORT_NUMBER -e serverName="SERVER_NAME_FROM_LOG" rmi-client-e5
+```
+
+**Note**: Watch the logs from Server container to get the name and use it as the param for Client. Otherwise it won't work.
+
 
 ## References:
 https://docs.oracle.com/javase/tutorial/rmi/client.html
