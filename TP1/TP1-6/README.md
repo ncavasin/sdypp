@@ -45,6 +45,7 @@ Server:
 
 ```bash
 cd TP1-6-Server
+mvn clean package
 docker build . -t rmi-server-e6
 docker run -e ip="IP_ADDRESS" -e port=PORT_NUMBER rmi-server-e6
 ```
@@ -55,6 +56,7 @@ Client:
 
 ```bash
 cd TP1-6-Client
+mvn clean package
 docker build . -t rmi-client-e6
 docker run -e ip="IP_ADDRESS" -e port=PORT_NUMBER -e serverName="SERVER_NAME_FROM_LOG" rmi-client-e5
 ```
