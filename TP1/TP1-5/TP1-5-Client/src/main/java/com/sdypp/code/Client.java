@@ -2,13 +2,12 @@ package com.sdypp.code;
 
 import com.sdypp.code.shared.WeatherForecaster;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+
 @Slf4j
 public class Client {
     private static final String USAGE_MESSAGE = "Missing at least one required argument: <IP_address> <port> <rmi_server_name>";
@@ -21,37 +20,45 @@ public class Client {
         setUp(args);
 
         log.info("Bootstrapping RMI client...");
-
-        // Locate the RMI registry using received socket
-        Registry registry = getRegistry();
-
-        // Lookup the exposed weather forecaster object in the registry
-        WeatherForecaster weatherForecaster = getWeatherForecaster(registry);
-
+        Registry registry;
+        WeatherForecaster weatherForecaster;
         try {
-            String msg = "I am invoking you through RMI";
-            log.info("Client requested echo of <{}>...", msg);
-            log.info("SERVER => {}", weatherForecaster.echo(msg));
-        } catch (RemoteException e) {
-            log.warn("Remote method invocation failed: {}", e.getMessage());
-            e.printStackTrace();
-        }
 
-        try {
-            log.info("Client asked Server to identify itself...");
-            log.info("SERVER => {}", weatherForecaster.identifyYourself());
-        } catch (RemoteException e) {
-            log.warn("Remote method invocation failed: {}", e.getMessage());
-            e.printStackTrace();
-        }
+            // Locate the RMI registry using received socket
+            registry = getRegistry();
 
-        // Get climate conditions where the server is located at
-        try {
-            log.info("Client asked Server for a climate conditions...");
-            log.info("SERVER => {}", weatherForecaster.getClimateConditions());
-        } catch (RemoteException e) {
-            log.warn("Remote method invocation failed: {}", e.getMessage());
-            e.printStackTrace();
+            try {// Lookup the exposed weather forecaster object in the registry
+                weatherForecaster = getWeatherForecaster(registry);
+                try {
+                    String msg = "I am invoking you through RMI";
+                    log.info("Client requested echo of <{}>...", msg);
+                    log.info("SERVER => {}", weatherForecaster.echo(msg));
+                } catch (RemoteException e) {
+                    log.warn("Remote method invocation failed: {}", e.getMessage());
+                    e.printStackTrace();
+                }
+
+                try {
+                    log.info("Client asked Server to identify itself...");
+                    log.info("SERVER => {}", weatherForecaster.identifyYourself());
+                } catch (RemoteException e) {
+                    log.warn("Remote method invocation failed: {}", e.getMessage());
+                    e.printStackTrace();
+                }
+
+                // Get climate conditions where the server is located at
+                try {
+                    log.info("Client asked Server for a climate conditions...");
+                    log.info("SERVER => {}", weatherForecaster.getClimateConditions());
+                } catch (RemoteException e) {
+                    log.warn("Remote method invocation failed: {}", e.getMessage());
+                    e.printStackTrace();
+                }
+            } catch (Exception e) {
+                log.error("Lookup of server name inside registry failed. Status: {}.", e.getMessage());
+            }
+        } catch (Exception e) {
+            log.error("Could not locate registry. Status: {}.", e.getMessage());
         }
     }
 
@@ -61,10 +68,9 @@ public class Client {
             weatherForecaster = (WeatherForecaster) registry.lookup(rmiObjectName);
             log.info("Lookup success: remote object {} found at {}:{}", rmiObjectName, ipAddress, port);
         } catch (RemoteException e) {
-            log.warn("Lookup failure: remote object '{}' NOT FOUND", rmiObjectName);
-            log.warn(e.getMessage());
+            log.warn("Lookup failure: remote object '{}' NOT FOUND.", rmiObjectName);
         } catch (NotBoundException e) {
-            e.printStackTrace();
+            log.error("Registry not bound. Error:{}", e.getMessage());
         }
         return weatherForecaster;
     }
