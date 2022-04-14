@@ -9,6 +9,7 @@ import java.rmi.RMISecurityManager;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.security.AccessControlContext;
 
 
 @Slf4j
@@ -22,7 +23,8 @@ public class Client {
         checkUsage(args.length);
         setUp(args);
         log.info("Bootstrapping RMI client...");
-        System.setSecurityManager(new SecurityManager());
+
+//        System.setSecurityManager(new SecurityManager());
 
         // Locate the RMI registry using received socket
         Registry registry = getRegistry();
@@ -76,10 +78,14 @@ public class Client {
             taskProcessor = (TaskProcessor) registry.lookup(rmiObjectName);
             log.info(String.format("Lookup success: remote object %s found at %s:%d", rmiObjectName, ipAddress, port));
         } catch (RemoteException e) {
-            log.info(String.format("Lookup failure: remote object '%s' NOT FOUND", rmiObjectName));
-            log.info(e.getMessage());
-        } catch (NotBoundException e) {
+//            log.info(String.format("Lookup failure: remote object '%s' NOT FOUND", rmiObjectName));
+//            panic("Lookup failure: remote object '" + rmiObjectName + "' NOT FOUND",e);
             e.printStackTrace();
+            System.exit(1);
+        } catch (NotBoundException e) {
+//            panic("Lookup failure: remote object '" + rmiObjectName + "' NOT BOUND",e);
+            e.printStackTrace();
+            System.exit(1);
         }
         return taskProcessor;
     }
