@@ -5,10 +5,10 @@ import com.sdypp.code.shared.TaskProcessor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.rmi.NotBoundException;
+import java.rmi.RMISecurityManager;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.util.logging.Logger;
 
 
 @Slf4j
@@ -18,11 +18,12 @@ public class Client {
     private static int port;
     private static String rmiObjectName;
 
-
     public static void main(String[] args) {
         checkUsage(args.length);
         setUp(args);
         log.info("Bootstrapping RMI client...");
+        System.setSecurityManager(new SecurityManager());
+
         // Locate the RMI registry using received socket
         Registry registry = getRegistry();
 
@@ -44,6 +45,28 @@ public class Client {
         } catch (RemoteException e) {
             log.info(String.format("Remote method invocation failed: %s", e.getMessage()));
             e.printStackTrace();
+        }
+
+        // Create a new task
+        GenerateRandomInteger randomIntegerTask = new GenerateRandomInteger();
+
+        // Execute it remotely
+        try {
+            log.info("Client asked Server to execute task: {}.", GenerateRandomInteger.class.getName());
+            log.info("SERVER => {}", taskProcessor.executeTask(randomIntegerTask));
+        } catch (RemoteException e) {
+            log.error("Error while GenerateRandomInteger task was executed remotely. Error: {}", e.getMessage());
+        }
+
+        // Repeat with another task
+        GenerateRandomString randomStringTask = new GenerateRandomString();
+
+        // Execute it remotely
+        try {
+            log.info("Client asked Server to execute task: {}.", GenerateRandomInteger.class.getName());
+            log.info("SERVER => {}", taskProcessor.executeTask(randomStringTask));
+        } catch (RemoteException e) {
+            log.error("Error while GenerateRandomString task was executed remotely. Error: {}", e.getMessage());
         }
     }
 

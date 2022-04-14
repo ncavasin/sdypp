@@ -39,6 +39,12 @@ Usage is:
 
 So, how does an object becomes RMI*able*? Simple, implementing Java's built-in ``Remote`` interface.
 
+## Remote task execution
+
+TaskProcessor's implementation never needs neither GenerateRandomInteger nor GenerateRandomString classes' definition until an object of that kind is passed in as an argument to the executeTask method. At that point, the code for the class is loaded by RMI into the TaskProcessor's object's JVM, the execute method is invoked, and the task's code is executed. Finally, the result is handed back to the calling client, where it is used to print the result of the computation.
+
+The fact that the supplied Task object computes the generation of a random integer or string is irrelevant to the TaskProcessor object. You could also implement a task that, for example, calculates the value of Pi number. The whole point of this is that the Client can now offload the computational expensive calculations to the Server without the server having to know explicitly how to do it until RMI fetches the needed classes.
+
 # Usage:
 
 Server:
