@@ -1,24 +1,24 @@
 package com.sdypp.code.rmi;
 
 import com.sdypp.code.dto.IdentificationDto;
-import com.sdypp.code.shared.Task;
-import com.sdypp.code.shared.TaskProcessor;
+import com.sdypp.code.Task;
+import com.sdypp.code.TaskProcessor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.extern.slf4j.Slf4j;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.logging.Logger;
 
 @EqualsAndHashCode(callSuper = false)
 @Data
+@Slf4j
 public class TaskProcessorImpl extends UnicastRemoteObject implements TaskProcessor {
 
     private int port;
     private String ipAddress;
     private long pid;
     private String name;
-    private static final Logger log = Logger.getLogger(TaskProcessorImpl.class.getName());
 
     public TaskProcessorImpl(String name, String ipAddress, int port) throws RemoteException {
         super();
@@ -48,6 +48,6 @@ public class TaskProcessorImpl extends UnicastRemoteObject implements TaskProces
 
     @Override
     public <T> T executeTask(Task<T> t) throws RemoteException {
-        return null;
+        return t.execute();
     }
 }

@@ -1,4 +1,4 @@
-package com.sdypp.code.shared;
+package com.sdypp.code;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;

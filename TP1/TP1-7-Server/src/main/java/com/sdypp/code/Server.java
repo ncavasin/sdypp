@@ -4,6 +4,7 @@ import com.sdypp.code.rmi.TaskProcessorImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.rmi.RMISecurityManager;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -11,7 +12,6 @@ import java.util.HashMap;
 import java.util.Random;
 
 
-@RequiredArgsConstructor
 @Slf4j
 public class Server {
     private static final String USAGE_MESSAGE = "TaskProcessorImpl IP address and/or port are missing";
@@ -21,6 +21,11 @@ public class Server {
     // Represents the current IP address of the system -> required for the registry
     private static String ipAddress;
 
+    private static Registry registry;
+
+    public Server() {
+        super();
+    }
 
     public static void main(String[] args) {
         checkUsage(args.length);
@@ -30,22 +35,23 @@ public class Server {
 
         System.setProperty("java.rmi.server.hostname", ipAddress);
 
-        // Create a new forecaster with randomized data
+        // Create a new taskProcessor with randomized data
         TaskProcessorImpl taskProcessor = getTaskProcessor();
 
-        Registry registry = createRegistry(taskProcessor);
+        // Create a new registry
+        createRegistry(taskProcessor);
 
-        // Bind exported stub to received port to accept incoming consumptions from client through TCP sockets
+        // Bind exported stub to the received port to accept incoming consumptions from client through TCP sockets
         bind(taskProcessor, registry);
 
-        log.info(String.format("RMI server running at [%s:%s] ...", taskProcessor.getIpAddress(), taskProcessor.getPort()));
+        log.info("RMI server running at [{}:{}] ...", taskProcessor.getIpAddress(), taskProcessor.getPort());
     }
 
     private static void bind(TaskProcessorImpl taskProcessor, Registry registry) {
         try {
             // Bind the task processor to a name in order to be found from remote clients by that name
             registry.rebind(taskProcessor.getName(), taskProcessor);
-            log.info(String.format("Task processor bounded successfully to port %d. Client lookup name is: %s.", taskProcessor.getPort(), taskProcessor.getName()));
+            log.info("Task processor bounded successfully to port {}. Client lookup name is: {}.", taskProcessor.getPort(), taskProcessor.getName());
         } catch (RemoteException e) {
             panic(String.format("FATAL: failed to bind Task processor to name %s at port %d", taskProcessor.getName(), taskProcessor.getPort()), e);
         }
@@ -53,7 +59,6 @@ public class Server {
 
     private static Registry createRegistry(TaskProcessorImpl taskProcessor) {
         // Create a new registry at received port
-        Registry registry = null;
         try {
             registry = LocateRegistry.createRegistry(taskProcessor.getPort());
             log.info(String.format("Registry created successfully at port %d.", taskProcessor.getPort()));
@@ -67,7 +72,7 @@ public class Server {
         TaskProcessorImpl taskProcessor = null;
         try {
             taskProcessor = new TaskProcessorImpl(pickNameAtRandom(), ipAddress, port);
-            log.info(String.format("Task processor %s initialized successfully!", taskProcessor.getName()));
+            log.info("Task processor {} initialized successfully!", taskProcessor.getName());
         } catch (RemoteException e) {
             panic("Error while initializing Task processor", e);
         }
