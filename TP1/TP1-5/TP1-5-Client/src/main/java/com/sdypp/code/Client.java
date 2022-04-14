@@ -48,7 +48,7 @@ public class Client {
 
                 // Get climate conditions where the server is located at
                 try {
-                    log.info("Client asked Server for a climate conditions...");
+                    log.info("Client asked Server for climate conditions...");
                     log.info("SERVER => {}", weatherForecaster.getClimateConditions());
                 } catch (RemoteException e) {
                     log.warn("Remote method invocation failed: {}", e.getMessage());
