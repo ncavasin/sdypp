@@ -1,0 +1,20 @@
+version: "3.7"
+
+services:
+  server:
+    container_name: rmi-server-e5
+    build:
+      context: TP1-5-Server
+      dockerfile: Dockerfile
+    networks:
+      - rmi-net
+  client:
+    container_name: rmi-client-e5
+    build:
+      context: TP1-5-Client
+      dockerfile: Dockerfile
+    networks:
+      - rmi-net
+
+networks:
+  rmi-net:
