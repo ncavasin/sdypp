@@ -50,9 +50,10 @@ The fact that the supplied Task object computes the generation of a random integ
 Server:
 
 ```bash
-cd TP1-6-Server
-docker build . -t rmi-server-e6
-docker run -e ip="IP_ADDRESS" -e port=PORT_NUMBER rmi-server-e6
+cd TP1-7-Server
+mvn clean package
+docker build . -t rmi-server-e7
+docker run -e ip="IP_ADDRESS" -e port=PORT_NUMBER rmi-server-e7
 ```
 
 **Note**: Watch the differences between the two params. Port number must NOT have any `"`.
@@ -60,8 +61,9 @@ docker run -e ip="IP_ADDRESS" -e port=PORT_NUMBER rmi-server-e6
 Client:
 
 ```bash
-cd TP1-6-Client
-docker build . -t rmi-client-e6
+cd TP1-7-Client
+mvn clean package
+docker build . -t rmi-client-e7
 docker run -e ip="IP_ADDRESS" -e port=PORT_NUMBER -e serverName="SERVER_NAME_FROM_LOG" rmi-client-e5
 ```
 
