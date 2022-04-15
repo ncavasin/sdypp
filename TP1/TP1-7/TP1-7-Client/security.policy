@@ -1,4 +1,4 @@
-grant {
+grant codeBase "file:///home/nico/Code/sdypp/TP1/TP1-7/TP1-7-Server/" {
 
         permission java.security.AllPermission;
 
