@@ -4,6 +4,7 @@ import com.sdypp.code.dto.IdentificationDto;
 import com.sdypp.code.shared.WeatherForecaster;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.extern.slf4j.Slf4j;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -11,6 +12,7 @@ import java.util.StringJoiner;
 
 @EqualsAndHashCode(callSuper = false)
 @Data
+@Slf4j
 public class WeatherForecasterImpl extends UnicastRemoteObject implements WeatherForecaster {
 
     private int port;
@@ -30,11 +32,13 @@ public class WeatherForecasterImpl extends UnicastRemoteObject implements Weathe
 
     @Override
     public String echo(String msg) {
+        log.info(String.format("Echo() invoked. Received message is: <%s>.", msg));
         return "...echoing back message <" + msg + ">. Goodbye!";
     }
 
     @Override
     public String identifyYourself() {
+        log.info("IdentifyYourself() invoked.");
         return IdentificationDto.builder()
                 .ipAddress(getIpAddress())
                 .port(getPort())
@@ -46,11 +50,13 @@ public class WeatherForecasterImpl extends UnicastRemoteObject implements Weathe
 
     @Override
     public String getClimateConditions() {
+        log.info("GetClimateConditions() invoked.");
         return getClimateStatus().toString();
     }
 
     @Override
     public String getFullReport() {
+        log.info("GetFullReport() invoked.");
         StringJoiner stringJoiner = new StringJoiner("\n");
         return stringJoiner
                 .add(identifyYourself())
