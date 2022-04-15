@@ -47,7 +47,7 @@ Server:
 
 ```bash
 wget https://github.com/ncavasin/sdypp/raw/main/TP1/TP1-5/rmi-server-e5.jar
-java -jar rmi-server-e5.jar <YOUR_IP_ADDRESS> <EPHIMEREAL_PORT>
+java -jar rmi-server-e5.jar <YOUR_IP_ADDRESS> <EPHEMERAL_PORT>
 ```
 
 **Note**: Watch the logs and remember the name of the Server as it's needed as a param for the Client.
