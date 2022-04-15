@@ -36,9 +36,9 @@ public class Server {
 
         System.setProperty("java.rmi.server.hostname", ipAddress);
 
-        System.setProperty("java.security.policy", "security.policy");
-        Policy.getPolicy().refresh();
-        System.setSecurityManager(new SecurityManager());
+//        System.setProperty("java.security.policy", "security.policy");
+//        Policy.getPolicy().refresh();
+//        System.setSecurityManager(new SecurityManager());
 
         // Create a new taskProcessor with randomized data
         TaskProcessorImpl taskProcessor = getTaskProcessor();

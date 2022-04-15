@@ -25,9 +25,9 @@ public class Client {
         setUp(args);
         log.info("Bootstrapping RMI client...");
 
-        System.setProperty("java.security.policy", "security.policy");
-        Policy.getPolicy().refresh();
-        System.setSecurityManager(new SecurityManager());
+//        System.setProperty("java.security.policy", "security.policy");
+//        Policy.getPolicy().refresh();
+//        System.setSecurityManager(new SecurityManager());
 
         // Locate the RMI registry using received socket
         Registry registry = getRegistry();
