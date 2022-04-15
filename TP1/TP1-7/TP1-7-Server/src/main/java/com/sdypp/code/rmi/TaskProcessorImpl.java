@@ -1,8 +1,8 @@
 package com.sdypp.code.rmi;
 
 import com.sdypp.code.dto.IdentificationDto;
-import com.sdypp.code.Task;
-import com.sdypp.code.TaskProcessor;
+import com.sdypp.code.shared.Task;
+import com.sdypp.code.shared.TaskProcessor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;

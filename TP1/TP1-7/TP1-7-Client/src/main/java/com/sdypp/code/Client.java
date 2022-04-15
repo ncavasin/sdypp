@@ -10,6 +10,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.security.AccessControlContext;
+import java.security.Policy;
 
 
 @Slf4j
@@ -24,7 +25,9 @@ public class Client {
         setUp(args);
         log.info("Bootstrapping RMI client...");
 
-//        System.setSecurityManager(new SecurityManager());
+        System.setProperty("java.security.policy", "security.policy");
+        Policy.getPolicy().refresh();
+        System.setSecurityManager(new SecurityManager());
 
         // Locate the RMI registry using received socket
         Registry registry = getRegistry();

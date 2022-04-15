@@ -8,6 +8,7 @@ import java.rmi.RMISecurityManager;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.security.Policy;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -34,6 +35,10 @@ public class Server {
         log.info("Bootstrapping RMI server...");
 
         System.setProperty("java.rmi.server.hostname", ipAddress);
+
+        System.setProperty("java.security.policy", "security.policy");
+        Policy.getPolicy().refresh();
+        System.setSecurityManager(new SecurityManager());
 
         // Create a new taskProcessor with randomized data
         TaskProcessorImpl taskProcessor = getTaskProcessor();

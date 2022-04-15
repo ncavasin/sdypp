@@ -1,4 +1,4 @@
-package com.sdypp.code;
+package com.sdypp.code.shared;
 
 /**
  * Defines a generic task of generic type T to interface between the TaskProcessor and the work that needs
