@@ -47,7 +47,7 @@ Server:
 
 ```bash
 wget https://github.com/ncavasin/sdypp/raw/main/TP1/TP1-6/rmi-server-e6.jar
-java -jar rmi-server-e5.jar <YOUR_IP_ADDRESS> <EPHEMERAL_PORT>
+java -jar rmi-server-e6.jar <YOUR_IP_ADDRESS> <EPHEMERAL_PORT>
 ```
 
 **Note**: Watch the logs and remember the name of the Server as it's needed as a param for the Client.
@@ -56,7 +56,7 @@ Client:
 
 ```bash
 wget https://github.com/ncavasin/sdypp/raw/main/TP1/TP1-6/rmi-client-e6.jar
-java -jar rmi-client-e5.jar <YOUR_IP_ADDRESS> <EPHIMEREAL_PORT> <SERVER_NAME>
+java -jar rmi-client-e6.jar <YOUR_IP_ADDRESS> <EPHIMEREAL_PORT> <SERVER_NAME>
 ```
 
 **Note**: Watch the logs from Server to get the name and use it as the param for Client. Otherwise RMI registry lookup won't work.
