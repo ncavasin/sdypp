@@ -41,25 +41,22 @@ So, how does an object becomes RMI*able*? Simple, implementing Java's built-in `
 
 # Usage:
 
+Use one terminal for executing first the Server and then another one for executing the Client.
+
 Server:
 
 ```bash
-cd TP1-5-Server
-mvn clean package
-docker build . -t rmi-server-e5
-docker run -e ip="IP_ADDRESS" -e port=PORT_NUMBER rmi-server-e5
+wget https://github.com/ncavasin/sdypp/raw/main/TP1/TP1-5/rmi-server-e5.jar
+java -jar rmi-server-e5.jar <YOUR_IP_ADDRESS> <EPHIMEREAL_PORT>
 ```
 
-**Note**: Watch the differences between the two params. Port number must NOT have any `"`.
+**Note**: Watch the logs and remember the name of the Server as it's needed as a param for the Client.
 
 Client:
 
 ```bash
-cd TP1-5-Client
-mvn clean package
-docker build . -t rmi-client-e5
-docker run -e ip="IP_ADDRESS" -e port=PORT_NUMBER -e serverName="SERVER_NAME_FROM_LOG" rmi-client-e5
+wget https://github.com/ncavasin/sdypp/raw/main/TP1/TP1-5/rmi-client-e5.jar
+java -jar rmi-client-e5.jar <YOUR_IP_ADDRESS> <EPHIMEREAL_PORT> <SERVER_NAME>
 ```
 
-**Note**: Watch the logs from Server container to get the name and use it as the param for Client. Otherwise it won't
-work.
+**Note**: Watch the logs from Server to get the name and use it as the param for Client. Otherwise RMI registry lookup won't work.
