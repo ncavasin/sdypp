@@ -39,7 +39,4 @@ build/
 # node_modules
 node_modules
 
-# TS compiled files
-dist
-
 *.log
