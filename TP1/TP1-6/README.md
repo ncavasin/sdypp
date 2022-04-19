@@ -60,3 +60,7 @@ java -jar rmi-client-e6.jar <YOUR_IP_ADDRESS> <EPHIMEREAL_PORT> <SERVER_NAME>
 ```
 
 **Note**: Watch the logs from Server to get the name and use it as the param for Client. Otherwise RMI registry lookup won't work.
+
+# Conclusion
+
+Despite of the fact that Server modifies the vector's content, as they are passed by value (as a copy) and not by reference, the Client content won't be modified but the result will due the Server using those modified values!
