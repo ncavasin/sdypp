@@ -1,13 +1,13 @@
-package com.sdypp.code;
+package com.sdypp.node;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class Tp21Application {
+public class NodeApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(Tp21Application.class, args);
+        SpringApplication.run(NodeApplication.class, args);
     }
 
 }
