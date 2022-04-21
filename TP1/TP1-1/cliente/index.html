@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+
+    <title>Chat</title>
+    <style>
+        form {background: rgba(0, 0, 0, 0.1); padding: 0.25;position:fixed;bottom: 0;left: 0; right:0 ;display: flex;height: 3rem;box-sizing: border-box; backdrop-filter: blur(10);}
+        ul{list-style-type: none; margin:0; padding: 0;}
+        ul > li {padding: 5rem 1rem;}
+        ul > li:nth-child(odd){background: #dcf8c6; text-align: right; font-size: italic; font-weight: 600;}
+    </style>
+  </head>
+  <body>
+    <ul class="list-gropu"></ul>
+    <form action="">
+        <input type="text" class="form-control" placeholder="Ingrese el mensaje">
+        <button>Enviar</button>
+    </form>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        let socket = io()
+        const form = document.querySelector('form')
+        const input = document.querySelector('input')
+        let mensajes = document.querySelector('ul')
+        form.addEventListener('submit',(e)=>{
+            e.preventDefault()
+            if (input.value){
+                let item = document.createElement('li')
+                item.textContent = input.value
+                mensajes.appendChild(item)
+                socket.emit('chat',input.value)
+                input.value = ''
+            }
+        })
+
+        socket.on('chat', (msg)=>{
+            let item = document.createElement('li')
+            item.textContent = msg
+            mensajes.appendChild(item)
+            window.scrollto(0,document.body.scrollHeight)
+        })
+        </script>
+  </body>
+</html>
