@@ -11,29 +11,26 @@ import java.net.Socket;
 @Slf4j
 public class Node implements Networking {
 
-    private final InetSocketAddress nodeSocket;
-    private InetSocketAddress destination;
-    private Socket socket;
+    private final InetSocketAddress nodeAddress;
 
-    public Node(InetSocketAddress nodeSocket) {
-        this.nodeSocket = nodeSocket;
-        socket = null;
+    public Node(InetSocketAddress nodeAddress) {
+        this.nodeAddress = nodeAddress;
     }
 
     @Override
-    public void connect(InetSocketAddress destination) {
-        this.destination = destination;
+    public Socket connect(InetSocketAddress destinationAddress) {
         try {
-            socket = new Socket(destination.getAddress(), destination.getPort());
+            return new Socket(destinationAddress.getAddress(), destinationAddress.getPort());
         } catch (IOException e) {
-            log.error("Failed to connect with {}", destination);
+            log.error("Failed to connect with {}.", destinationAddress);
         }
+        return null;
     }
 
     @Override
-    public void send() {
-        if (!isConnected()) {
-            log.error("Failed to send message to {}. Connection is not open.", nodeSocket);
+    public void send(Socket socket, byte[] message) {
+        if (!isConnected(socket)) {
+            log.error("Failed to send message to {}. Connection is not open.", nodeAddress);
             return;
         }
 
@@ -46,13 +43,19 @@ public class Node implements Networking {
     }
 
     @Override
-    public void disconnect() {
-        if (!isConnected()) {
+    public void disconnect(Socket socket) {
+        if (isConnected(socket)) {
+            try {
+                socket.close();
+                socket = null;
+            } catch (IOException e) {
+                log.error("Error disconnecting from {}.", socket.getInetAddress().toString());
+            }
         }
     }
 
     @Override
-    public boolean isConnected() {
+    public boolean isConnected(Socket socket) {
         return socket.isConnected();
     }
 }
