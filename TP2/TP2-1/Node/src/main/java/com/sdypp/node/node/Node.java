@@ -19,18 +19,20 @@ public class Node implements Networking {
 
     @Override
     public Socket connect(InetSocketAddress destinationAddress) {
+        Socket socket = null;
         try {
-            return new Socket(destinationAddress.getAddress(), destinationAddress.getPort());
+            socket = new Socket(destinationAddress.getAddress(), destinationAddress.getPort());
         } catch (IOException e) {
             log.error("Failed to connect with {}.", destinationAddress);
         }
-        return null;
+        return socket;
     }
 
     @Override
     public void send(Socket socket, byte[] message) {
+        String address = socket.getInetAddress().toString();
         if (!isConnected(socket)) {
-            log.error("Failed to send message to {}. Connection is not open.", nodeAddress);
+            log.error("Failed to send message to {}. There's no such connection!", address);
             return;
         }
 
@@ -38,7 +40,7 @@ public class Node implements Networking {
             OutputStream os = socket.getOutputStream();
             os.write(new byte[1024]);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            log.error("Failed to send message to {}.", address);
         }
     }
 
