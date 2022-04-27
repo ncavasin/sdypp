@@ -15,6 +15,7 @@ public class Node implements Networking {
         Socket tcpSocket = null;
         try {
             tcpSocket = new Socket(destinationAddress.getAddress(), destinationAddress.getPort());
+            tcpSocket.connect(destinationAddress);
             log.info("TCP connection with {} successfully established.", tcpSocket.getInetAddress().toString());
         } catch (IOException e) {
             log.error("Failed to connect with {}.", destinationAddress);
@@ -32,7 +33,7 @@ public class Node implements Networking {
 
         try {
             OutputStream os = tcpSocket.getOutputStream();
-            os.write(new byte[1024]);
+            os.write(message);
             log.info("Message successfully sent to {} using TCP.", address);
         } catch (IOException e) {
             log.error("Failed to send message to {}.", address);
@@ -54,9 +55,10 @@ public class Node implements Networking {
 
     @Override
     public void multicast(InetSocketAddress multicastAddress, byte[] message) {
-        try (DatagramSocket udpSocket = new DatagramSocket(new InetSocketAddress(multicastAddress.getAddress(), multicastAddress.getPort()))) {
+        try (DatagramSocket udpSocket = new DatagramSocket(multicastAddress)) {
             try {
                 DatagramPacket datagram = new DatagramPacket(message, message.length, multicastAddress);
+                datagram.setData(message, 0 , message.length);
                 udpSocket.send(datagram);
                 log.info("Multicast message successfully sent to {} using UDP.", multicastAddress);
             } catch (IOException e) {
