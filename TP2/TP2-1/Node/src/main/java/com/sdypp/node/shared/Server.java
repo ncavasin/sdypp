@@ -1,8 +1,5 @@
 package com.sdypp.node.shared;
 
-import java.net.ServerSocket;
-import java.net.Socket;
-
 public interface Server extends Networking {
 
     /**
@@ -13,11 +10,9 @@ public interface Server extends Networking {
     void listenAtPort(int port);
 
     /**
-     * Accept a connection from a peer.
-     *
-     * @return The socket that is used to communicate with the peer.
+     * Get ready to accept incoming connections.
      */
-    Socket acceptIncomingConnection();
+    void acceptIncomingConnections();
 
     /**
      * Closes the server socket.

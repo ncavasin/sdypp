@@ -9,6 +9,7 @@ import lombok.Setter;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.net.ServerSocket;
+import java.net.Socket;
 
 @Getter
 @Setter
@@ -16,6 +17,8 @@ import java.net.ServerSocket;
 @NoArgsConstructor
 public abstract class AbstractServer implements Server {
     private ServerSocket serverSocket;
+
+    private Socket currentClient;
 
     private BufferedReader bufferedReader;
 

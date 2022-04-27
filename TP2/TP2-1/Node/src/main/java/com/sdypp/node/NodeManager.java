@@ -3,9 +3,6 @@ package com.sdypp.node;
 import com.sdypp.node.node.Node;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
@@ -24,22 +21,16 @@ public class NodeManager {
 
     public static void main(String[] args) throws InterruptedException {
 //        new NodeManager();
-
+        int port = 6521;
+        String address = "localhost";
+        Node node = new Node();
+        node.listenAtPort(port);
         while (true) {
-            Node n = new Node();
-            n.listenAtPort(6521);
-            try {
-                Socket s = n.acceptIncomingConnection();
-                BufferedReader br = new BufferedReader(new InputStreamReader(s.getInputStream()));
-                System.out.println(br.readLine());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
+            new Thread(node::acceptIncomingConnections).start();
             Thread.sleep(1000);
-            Socket s = n.connect(new InetSocketAddress("127.0.0.1", 6521));
-            n.send(s, "Hello as client!!!!".getBytes(StandardCharsets.UTF_8));
-            n.disconnect(s);
+            Socket s = node.connect(new InetSocketAddress(address, port));
+            node.send(s, "Hello from client!!!!".getBytes(StandardCharsets.UTF_8));
+            node.disconnect(s);
         }
     }
 }
