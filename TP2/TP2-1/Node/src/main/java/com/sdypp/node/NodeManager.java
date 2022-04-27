@@ -9,9 +9,10 @@ import java.nio.charset.StandardCharsets;
 public class NodeManager {
 
     public NodeManager() {
-        Node n = new Node(new InetSocketAddress("localhost", 9999));
-        Socket s = n.connect(new InetSocketAddress("localhost", 9098));
-        n.send(s, "Hello".getBytes(StandardCharsets.UTF_8));
-        n.disconnect(s);
+        Node n = new Node();
+        Socket socket = n.connect(new InetSocketAddress("localhost", 9098));
+        n.send(socket, "Hello".getBytes(StandardCharsets.UTF_8));
+        n.multicast(new InetSocketAddress("localhost", 9098), "Hello".getBytes(StandardCharsets.UTF_8));
+        n.disconnect(socket);
     }
 }

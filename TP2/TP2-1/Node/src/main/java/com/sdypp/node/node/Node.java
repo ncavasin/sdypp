@@ -5,59 +5,70 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.InetSocketAddress;
-import java.net.Socket;
+import java.net.*;
 
 @Slf4j
 public class Node implements Networking {
 
-    private final InetSocketAddress nodeAddress;
-
-    public Node(InetSocketAddress nodeAddress) {
-        this.nodeAddress = nodeAddress;
-    }
-
     @Override
     public Socket connect(InetSocketAddress destinationAddress) {
-        Socket socket = null;
+        Socket tcpSocket = null;
         try {
-            socket = new Socket(destinationAddress.getAddress(), destinationAddress.getPort());
+            tcpSocket = new Socket(destinationAddress.getAddress(), destinationAddress.getPort());
+            log.info("TCP connection with {} successfully established.", tcpSocket.getInetAddress().toString());
         } catch (IOException e) {
             log.error("Failed to connect with {}.", destinationAddress);
         }
-        return socket;
+        return tcpSocket;
     }
 
     @Override
-    public void send(Socket socket, byte[] message) {
-        String address = socket.getInetAddress().toString();
-        if (!isConnected(socket)) {
-            log.error("Failed to send message to {}. There's no such connection!", address);
+    public void send(Socket tcpSocket, byte[] message) {
+        String address = tcpSocket.getInetAddress().toString();
+        if (!isConnected(tcpSocket)) {
+            log.error("Failed to send message to {} using TCP. There's no such connection!", address);
             return;
         }
 
         try {
-            OutputStream os = socket.getOutputStream();
+            OutputStream os = tcpSocket.getOutputStream();
             os.write(new byte[1024]);
+            log.info("Message successfully sent to {} using TCP.", address);
         } catch (IOException e) {
             log.error("Failed to send message to {}.", address);
         }
     }
 
     @Override
-    public void disconnect(Socket socket) {
-        if (isConnected(socket)) {
+    public void disconnect(Socket tcpSocket) {
+        String address = tcpSocket.getInetAddress().toString();
+        if (isConnected(tcpSocket)) {
             try {
-                socket.close();
-                socket = null;
+                tcpSocket.close();
+                log.info("TCP connection to {} successfully closed.", address);
             } catch (IOException e) {
-                log.error("Error disconnecting from {}.", socket.getInetAddress().toString());
+                log.error("Error disconnecting from {}.", address);
             }
         }
     }
 
     @Override
-    public boolean isConnected(Socket socket) {
-        return socket.isConnected();
+    public void multicast(InetSocketAddress multicastAddress, byte[] message) {
+        try (DatagramSocket udpSocket = new DatagramSocket(new InetSocketAddress(multicastAddress.getAddress(), multicastAddress.getPort()))) {
+            try {
+                DatagramPacket datagram = new DatagramPacket(message, message.length, multicastAddress);
+                udpSocket.send(datagram);
+                log.info("Multicast message successfully sent to {} using UDP.", multicastAddress);
+            } catch (IOException e) {
+                log.error("Failed to multicast message to {}.", udpSocket.getInetAddress().toString());
+            }
+        } catch (SocketException e) {
+            log.error("Failed to create multicast UDP Socket for address {}.", multicastAddress);
+        }
+    }
+
+    @Override
+    public boolean isConnected(Socket tcpSocket) {
+        return tcpSocket.isConnected();
     }
 }
