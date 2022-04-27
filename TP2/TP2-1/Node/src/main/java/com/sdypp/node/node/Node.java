@@ -1,6 +1,9 @@
 package com.sdypp.node.node;
 
 import com.sdypp.node.shared.Networking;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -8,7 +11,44 @@ import java.io.OutputStream;
 import java.net.*;
 
 @Slf4j
-public class Node implements Networking {
+@Getter
+@Setter
+@AllArgsConstructor
+public class Node extends AbstractServer implements Networking {
+
+    @Override
+    public void listenAtPort(int port) {
+        ServerSocket serverSocket = null;
+        try {
+            serverSocket = new ServerSocket(port);
+            log.info("TCP ServerSocket at port {} successfully created.", port);
+        } catch (IOException e) {
+            log.error("Failed to listen at port {}.", port);
+        }
+        this.setServerSocket(serverSocket);
+    }
+
+    @Override
+    public Socket acceptIncomingConnection() {
+        Socket incomingConnection = null;
+        try {
+            incomingConnection = this.getServerSocket().accept();
+            log.info("TCP ServerSocket accepted connection at port {} successfully created.", incomingConnection.getInetAddress());
+        } catch (IOException e) {
+            log.error("Failed to accept incoming connection.");
+        }
+        return incomingConnection;
+    }
+
+    @Override
+    public void unlisten() {
+        try {
+            this.getServerSocket().close();
+            log.info("TCP ServerSocket successfully closed.");
+        } catch (IOException e) {
+            log.error("Failed to close TCP ServerSocket.");
+        }
+    }
 
     @Override
     public Socket connect(InetSocketAddress destinationAddress) {
@@ -58,7 +98,7 @@ public class Node implements Networking {
         try (DatagramSocket udpSocket = new DatagramSocket(multicastAddress)) {
             try {
                 DatagramPacket datagram = new DatagramPacket(message, message.length, multicastAddress);
-                datagram.setData(message, 0 , message.length);
+                datagram.setData(message, 0, message.length);
                 udpSocket.send(datagram);
                 log.info("Multicast message successfully sent to {} using UDP.", multicastAddress);
             } catch (IOException e) {
