@@ -14,8 +14,6 @@ public interface Server {
      */
     void acceptIncomingConnections();
 
-    void syncFiles();
-
     /**
      * Closes the server socket.
      */
