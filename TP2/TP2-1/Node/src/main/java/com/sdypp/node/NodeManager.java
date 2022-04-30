@@ -10,15 +10,6 @@ import java.nio.charset.StandardCharsets;
 @SpringBootApplication
 public class NodeManager {
 
-    public NodeManager() {
-        Node n = new Node();
-        Socket socket = n.connect(new InetSocketAddress("localhost", 9098));
-
-        n.send(socket, "Hello".getBytes(StandardCharsets.UTF_8));
-        n.multicast(new InetSocketAddress("localhost", 9098), "Hello".getBytes(StandardCharsets.UTF_8));
-        n.disconnect(socket);
-    }
-
     public static void main(String[] args) throws InterruptedException {
 //        new NodeManager();
         int port = 6521;
