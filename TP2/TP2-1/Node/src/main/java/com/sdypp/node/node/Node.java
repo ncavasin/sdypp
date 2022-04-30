@@ -1,6 +1,6 @@
 package com.sdypp.node.node;
 
-import com.sdypp.node.shared.Networking;
+import com.sdypp.node.shared.Client;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,7 +16,7 @@ import java.net.*;
 @Getter
 @Setter
 @AllArgsConstructor
-public class Node extends AbstractServer implements Networking {
+public class Node extends AbstractServer implements Client {
 
     @Override
     public void listenAtPort(int port) {
