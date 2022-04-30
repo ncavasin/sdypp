@@ -1,6 +1,6 @@
 package com.sdypp.node.shared;
 
-public interface Server extends Networking {
+public interface Server {
 
     /**
      * Creates a server socket that listens for incoming connections on specified port.
@@ -13,6 +13,8 @@ public interface Server extends Networking {
      * Get ready to accept incoming connections.
      */
     void acceptIncomingConnections();
+
+    void syncFiles();
 
     /**
      * Closes the server socket.

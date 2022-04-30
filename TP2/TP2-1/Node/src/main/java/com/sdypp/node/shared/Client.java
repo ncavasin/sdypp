@@ -6,7 +6,7 @@ import java.net.Socket;
 /**
  * This interface defines the methods that a peer must implement in order to communicate with other peers.
  */
-public interface Networking {
+public interface Client {
 
     /**
      * Connect to a peer on the specified InetSocketAddress.
