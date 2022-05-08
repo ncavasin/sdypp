@@ -17,7 +17,8 @@ public class NodeManager {
         Node node = new Node();
         node.listenAtPort(port);
         while (true) {
-            new Thread(node::acceptIncomingConnections).start();
+//            new Thread(node::acceptIncomingConnections).start();
+            node.acceptIncomingConnections();
             Thread.sleep(1000);
             Socket s = node.connect(new InetSocketAddress(address, port));
             node.send(s, "Hello from client!!!!".getBytes(StandardCharsets.UTF_8));

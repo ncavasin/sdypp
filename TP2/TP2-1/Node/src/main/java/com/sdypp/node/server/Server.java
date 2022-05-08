@@ -1,4 +1,4 @@
-package com.sdypp.node.shared;
+package com.sdypp.node.server;
 
 public interface Server {
 

@@ -1,4 +1,4 @@
-package com.sdypp.node.shared;
+package com.sdypp.node.client;
 
 import java.net.InetSocketAddress;
 import java.net.Socket;
