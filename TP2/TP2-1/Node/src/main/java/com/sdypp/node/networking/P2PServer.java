@@ -1,6 +1,9 @@
-package com.sdypp.node.server;
+package com.sdypp.node.networking;
 
-public interface Server {
+import org.springframework.stereotype.Service;
+
+@Service
+public interface P2PServer {
 
     /**
      * Creates a server socket that listens for incoming connections on specified port.
@@ -10,9 +13,9 @@ public interface Server {
     void listenAtPort(int port);
 
     /**
-     * Get ready to accept incoming connections.
+     * Handles incoming connections in a separate thread.
      */
-    void acceptIncomingConnections();
+    void handleIncomingConnections();
 
     /**
      * Closes the server socket.

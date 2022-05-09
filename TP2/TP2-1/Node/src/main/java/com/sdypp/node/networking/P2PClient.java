@@ -1,12 +1,15 @@
-package com.sdypp.node.client;
+package com.sdypp.node.networking;
+
+import org.springframework.stereotype.Service;
 
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
+@Service
 /**
  * This interface defines the methods that a peer must implement in order to communicate with other peers.
  */
-public interface Client {
+public interface P2PClient {
 
     /**
      * Connect to a peer on the specified InetSocketAddress.

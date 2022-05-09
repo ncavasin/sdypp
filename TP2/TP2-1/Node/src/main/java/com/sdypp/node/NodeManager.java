@@ -11,18 +11,17 @@ import java.nio.charset.StandardCharsets;
 public class NodeManager {
 
     public static void main(String[] args) throws InterruptedException {
-//        new NodeManager();
         int port = 6521;
         String address = "localhost";
         Node node = new Node();
+        Node secondNode = new Node();
         node.listenAtPort(port);
         while (true) {
-//            new Thread(node::acceptIncomingConnections).start();
-            node.acceptIncomingConnections();
-            Thread.sleep(1000);
-            Socket s = node.connect(new InetSocketAddress(address, port));
-            node.send(s, "Hello from client!!!!".getBytes(StandardCharsets.UTF_8));
-            node.disconnect(s);
+            node.handleIncomingConnections();
+//            Thread.sleep(1000);
+            Socket s = secondNode.connect(new InetSocketAddress(address, port));
+            secondNode.send(s, "Hello, world!".getBytes(StandardCharsets.UTF_8));
+            secondNode.disconnect(s);
         }
     }
 }
