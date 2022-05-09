@@ -38,7 +38,9 @@ public class Node implements P2PClient, P2PServer {
             this.semaphore.acquire();
             new ServerThread(this.serverSocket).start();
         } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            log.error("Failed to acquire semaphore. Error: {}", e.getMessage());
+        } catch (Exception e) {
+            log.error("Failed to start new ServerThread. Error: {}", e.getMessage());
         } finally {
             this.semaphore.release();
         }
