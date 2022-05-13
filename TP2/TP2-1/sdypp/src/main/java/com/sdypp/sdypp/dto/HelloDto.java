@@ -12,6 +12,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class HelloDto {
-    private String nodeAddress;
+    private String owner;
     private List<String> files;
 }
