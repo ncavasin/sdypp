@@ -6,15 +6,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class FileLocationDto{
+public class FileLocationDto {
     /**
-     * The IP address of the file's owners/owner
+     * The IP address of the file's owner
      */
-    private List<String> owners;
+    private String owner;
 }
