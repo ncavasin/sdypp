@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class FileLocationDto {
+public class FileOwnerDto {
     /**
      * The IP address of the file's owner
      */
