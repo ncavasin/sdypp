@@ -1,13 +1,13 @@
 package com.sdypp.sdypp.service;
 
-import com.sdypp.sdypp.dto.FileLocationDto;
+import com.sdypp.sdypp.dto.FileOwnerDto;
 import com.sdypp.sdypp.dto.HelloDto;
 
 public interface ServerService {
 
     void hello(HelloDto helloDto);
 
-    FileLocationDto locate(String filename);
+    FileOwnerDto locate(String filename);
 
-    void bye(String nodeAddress);
+    void bye(String owner);
 }

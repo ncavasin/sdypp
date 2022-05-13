@@ -1,7 +1,7 @@
 package com.sdypp.sdypp.service;
 
 import com.sdypp.sdypp.domain.FileLocation;
-import com.sdypp.sdypp.dto.FileLocationDto;
+import com.sdypp.sdypp.dto.FileOwnerDto;
 import com.sdypp.sdypp.dto.HelloDto;
 import com.sdypp.sdypp.repository.FileLocationRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,26 +14,29 @@ public class ServerServiceImpl implements ServerService {
 
     @Override
     public void hello(HelloDto helloDto) {
-        // TODO
-        if(fileLocationRepository.existsById("")){
-            fileLocationRepository.save(new FileLocation());
-        }
-
-
-        // Parse dto and hit redis
+        // If already exists, delete it
+        if (fileLocationRepository.existsById(helloDto.getOwner()))
+            fileLocationRepository.delete(fileLocationRepository.findById(helloDto.getOwner()).get());
+        // Then save the new one
+        fileLocationRepository.save(FileLocation.builder()
+                .owner(helloDto.getOwner())
+                .files(helloDto.getFiles())
+                .build());
     }
 
     @Override
-    public FileLocationDto locate(String filename) {
-        // TODO:
-        // Hit redis asking for the file name
-        // Parse it to a FileLocationDto and return it
-        return null;
+    public FileOwnerDto locate(String filename) {
+        // Ask redis for filename
+        FileLocation fileLocation = fileLocationRepository.findByFileName(filename).orElseThrow(() -> new RuntimeException("File not found"));
+        // Return the owner
+        return FileOwnerDto.builder()
+                .owner(fileLocation.getOwner())
+                .build();
     }
 
     @Override
-    public void bye(String nodeAddress) {
-        // TODO
-        // remove files from redis using nodeAddress as key
+    public void bye(String owner) {
+        // Remove entry from redis
+        fileLocationRepository.deleteById(owner);
     }
 }
