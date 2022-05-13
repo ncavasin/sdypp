@@ -1,4 +1,4 @@
-package com.sdypp.sdypp.p2p;
+package com.sdypp.sdypp.controller;
 
 import com.sdypp.sdypp.dto.FileLocationDto;
 import com.sdypp.sdypp.dto.HelloDto;
@@ -6,8 +6,6 @@ import com.sdypp.sdypp.service.ServerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import javax.websocket.server.PathParam;
 
 @RestController
 @RequestMapping("/api/p2p")
