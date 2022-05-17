@@ -25,7 +25,7 @@ class Server {
         this._express = (0, express_1.default)();
         this._express.use((0, express_fileupload_1.default)());
         this.initializeEndpoints();
-        const port = process.env.PORT || 4002;
+        const port = process.env.PORT || 4001;
         this._express.listen(port, () => {
             console.log(`Server running on port ${port}`);
         });
@@ -39,16 +39,22 @@ class Server {
     }
     handleSobelImageRequest(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const files = req.files;
-            if (!files || Object.keys(files).length === 0 || !files.image)
-                return res.status(400).json({ message: 'No image given' });
-            const { image } = files;
-            const { mimetype } = image;
-            const start = new Date();
-            const sobelImageData = yield this.processSobelFilter(image);
-            const end = new Date();
-            console.log(`[Server] Image name: "${image.name}" --> Time: ${Number(end) - Number(start)}ms`);
-            return res.contentType(mimetype).send(sobelImageData);
+            try {
+                const files = req.files;
+                if (!files || Object.keys(files).length === 0 || !files.image)
+                    return res.status(400).json({ message: 'No image given' });
+                const { image } = files;
+                const { mimetype } = image;
+                const start = new Date();
+                const sobelImageData = yield this.processSobelFilter(image);
+                const end = new Date();
+                console.log(`[Server] Image name: "${image.name}" --> Time: ${Number(end) - Number(start)}ms`);
+                return res.contentType(mimetype).send(sobelImageData);
+            }
+            catch (error) {
+                console.error(error);
+                return res.status(500).json({ message: 'Ups!! Something went wrong!' });
+            }
         });
     }
     processSobelFilter(image) {
