@@ -4,8 +4,8 @@ import fileUpload, { UploadedFile } from 'express-fileupload';
 import fs from 'fs';
 
 const pixels = require('image-pixels');
-const imageOutput = require('image-output');
 const { Sobel } = require('sobel');
+const imageOutput = require('image-output');
 
 import dotenv from 'dotenv';
 dotenv.config();
@@ -36,7 +36,6 @@ export default class Server {
 	}
 
 	private async handleSobelImageRequest(req: Request, res: Response) {
-
 		try {
 			const files = req.files;
 			if (!files || Object.keys(files).length === 0 || !files.image) return res.status(400).json({ message: 'No image given' });
