@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
+import org.springframework.data.redis.core.index.Indexed;
 
 import java.util.List;
 
@@ -17,5 +18,6 @@ import java.util.List;
 public class FileLocation {
     @Id
     private String owner;
+    @Indexed
     private List<String> files;
 }

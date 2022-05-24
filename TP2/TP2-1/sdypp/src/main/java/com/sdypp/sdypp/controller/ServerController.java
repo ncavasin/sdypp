@@ -1,6 +1,7 @@
 package com.sdypp.sdypp.controller;
 
 import com.sdypp.sdypp.domain.FileLocation;
+import com.sdypp.sdypp.dto.FileNameDto;
 import com.sdypp.sdypp.dto.FileOwnerDto;
 import com.sdypp.sdypp.dto.HelloDto;
 import com.sdypp.sdypp.service.ServerService;
@@ -21,19 +22,23 @@ public class ServerController {
         return serverService.findAll();
     }
 
-
     @PostMapping("/hello")
     public void hello(@RequestBody @Validated HelloDto helloDto) {
         serverService.hello(helloDto);
     }
 
-    @GetMapping("/bye/{owner}")
+    @PostMapping("/locate")
+    public List<FileOwnerDto> locate(@RequestBody @Validated FileNameDto fileNameDto) {
+        return serverService.locate(fileNameDto);
+    }
+
+    @DeleteMapping("/bye/{owner}")
     public void bye(@PathVariable("owner") String owner) {
         serverService.bye(owner);
     }
 
-    @GetMapping("/locate/{filename}")
-    public FileOwnerDto locate(@PathVariable("filename") String filename) {
-        return serverService.locate(filename);
+    @DeleteMapping("/all")
+    public void deleteAll(){
+        serverService.deleteAll();
     }
 }
