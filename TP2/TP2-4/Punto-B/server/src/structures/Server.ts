@@ -1,14 +1,25 @@
 import express, { Express, Request, Response } from 'express';
 import bodyParser from 'body-parser';
-import fileUpload, { UploadedFile } from 'express-fileupload';
+import fileUpload from 'express-fileupload';
+import axios from 'axios';
+import { v4 as uuidv4 } from 'uuid';
 
 const { imageToChunks } = require('split-images');
 const { joinImages } = require('join-images');
 
-import RabbitServer from './RabbitServer';
+import RabbitServer, { Process, WrappedMessage } from './RabbitServer';
 
 import dotenv from 'dotenv';
 dotenv.config();
+
+const Log = (...args: any[]) => {
+	console.log(`[SERVER]`, ...args);
+}
+
+const LogError = (...args: any[]) => {
+	Log(`- [ERROR]`, ...args);
+}
+
 
 export default class Server {
 	private _express!: Express;
@@ -27,10 +38,10 @@ export default class Server {
 
 			const port = process.env.PORT || 4001;
 			this._express.listen(port, () => {
-				console.log(`Decentralized server running on port ${port}`);
+				Log(`Decentralized server running on port ${port}`);
 			})
 		} catch (error) {
-			console.error('Something went wrong!!', error);
+			LogError('Something went wrong!', error);
 			process.exit(1);
 		}
 	}
@@ -52,10 +63,28 @@ export default class Server {
 	initializeEndpoints() {
 		this._express.get('/', this.handleHomeRequest.bind(this));
 		this._express.post('/sobel', this.handleSobelImageRequest.bind(this));
+		this._express.get('/sobel/:processId', this.handleGetSobelImageRequest.bind(this));
 	}
 
 	private handleHomeRequest(req: Request, res: Response) {
 		return res.json({ message: "Decentralized Sobel Server is online" });
+	}
+
+	private async handleGetSobelImageRequest(req: Request, res: Response) {
+		try {
+			const { processId } = req.params;
+			if (!processId) return res.status(400).json('params.processId is required!');
+
+			const response = await axios.get(`${process.env.WAREHOUSE_HOST}:${process.env.WAREHOUSE_PORT}/process/${processId}`, {
+				responseType: 'arraybuffer'
+			});
+
+			res.setHeader('Content-Type', response.headers['content-type']);
+			return res.send(response.data);
+		} catch (error) {
+			LogError('Failed to get image', error);
+			return res.status(500).json({ message: 'Ups!! Something went wrong!' });
+		}
 	}
 
 	private async handleSobelImageRequest(req: Request, res: Response) {
@@ -64,35 +93,52 @@ export default class Server {
 			if (!files || Object.keys(files).length === 0 || !files.image) return res.status(400).json({ message: 'No image given' });
 
 			const { image } = files as any;
-			const { mimetype } = image;
-	
-			const start = new Date();
+			const { name, mimetype } = image;
 
+			// Max height size of image chunks
 			const chunckHeightSize = 1000;
 
 			const chuncks: Buffer[] = await imageToChunks(image.data, chunckHeightSize);
-			console.log(`[SERVER] Process started! - File: "${image.name}" - Chunks: ${chuncks.length}`);
-			
-			const sucessFnCallback = async (payload: any) => {
-				const end = new Date();
-				const totalTime = Number(end) - Number(start);
-				console.log(`[SERVER] Process completed! - File: "${image.name}" - Chunks merged: ${chuncks.length} - Time: ${totalTime}ms`);
 
-				const mergedImgSharp = await this.joinImagesAsync(payload);
-				const bufferImg = await mergedImgSharp.png().toBuffer();
+			Log(`Process started! - File: "${image.name}" - Messages: ${chuncks.length}`);
 
-				return res.contentType(mimetype).send(bufferImg);
-			}
+			const createdProcess = this.createProcess(chuncks);
 
-			const failedFnCallback = () => {
-				return res.status(500).json({ message: 'Algo pasó y no se pudo ejecutar correctamente' });
-			}
+			await axios.post(`${process.env.WAREHOUSE_HOST}:${process.env.WAREHOUSE_PORT}/process/`, {
+				process: {
+					id: createdProcess.id,
+					messages: createdProcess.messages.map(message => message.messageId),
+					name,
+					mimetype
+				}
+			})
 
-			this._rabbitServer.processAndQueueMessage(process.env.RABBIT_REQUEST_QUEUE!, chuncks, sucessFnCallback, failedFnCallback);
+			// Send the messages to the workers
+			this._rabbitServer.QueueMessages(process.env.RABBIT_REQUEST_QUEUE!, createdProcess.messages);
+
+			return res.json({ message: 'The image successfully upload', processId: createdProcess.id });
 		} catch (error) {
-			console.error(error);
+			LogError(error);
 			return res.status(500).json({ message: 'Ups!! Something went wrong!' });
 		}
+	}
+
+	createProcess(messages: Buffer[]): Process {
+		const processId = uuidv4();
+
+		const parsedMessages: WrappedMessage[] = messages.map((message, index) => ({
+			processId,
+			messageId: `${index}`,
+			payload: message.toString('base64')
+		}));
+
+		const processData: Process = {
+			id: processId,
+			messages: parsedMessages,
+			receivedMessages: []
+		}
+
+		return processData;
 	}
 
 	joinImagesAsync(images: Buffer[]): any {
@@ -107,35 +153,4 @@ export default class Server {
 			
 		})
 	}
-
-	logReceptionMessage(imageName: string, timeMS: number, totalChuncks: number) {
-		console.log(`
-----------------------------------------------------------
-[Server] Process completed!
-  - Image name: "${imageName}"
-  - Time: ${timeMS}ms
-  - ${totalChuncks} chuncks merged
-----------------------------------------------------------
-		`);
-	}
-
-	// async processSobelFilter(image: UploadedFile) {
-	// 	// Transform the image buffer into an Array of Pixels
-	// 	const { data, width, height } = await pixels(image.data);
-
-	// 	// Apply the sobel filter over the Array of Pixels
-	// 	const sobel = Sobel({ data, width, height });
-	// 	const sobelImageData = await sobel.toImageData();
-
-	// 	const filename = `sobel-${image.name}`;
-
-	// 	// Saves the Array of Pixeles into a image file
-	// 	await imageOutput(sobelImageData, filename);
-	// 	// Reads the file to get the binary code
-	// 	const sobelImageBuffer = fs.readFileSync(filename);
-	// 	// Deletes the persisted file
-	// 	fs.unlinkSync(filename);
-
-	// 	return sobelImageBuffer;
-	// }
 }

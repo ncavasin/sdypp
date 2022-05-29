@@ -3,6 +3,7 @@ import fileUpload, { UploadedFile } from 'express-fileupload';
 
 import fs from 'fs';
 
+import { createCanvas } from 'canvas';
 const pixels = require('image-pixels');
 const { Sobel } = require('sobel');
 const imageOutput = require('image-output');
@@ -57,21 +58,27 @@ export default class Server {
 	}
 
 	async processSobelFilter(image: UploadedFile) {
-		// Transform the image buffer into an Array of Pixels
-		const { data, width, height } = await pixels(image.data);
+		const { data, width, height } = await pixels(image);
 
 		// Apply the sobel filter over the Array of Pixels
 		const sobel = Sobel({ data, width, height });
 		const sobelImageData = await sobel.toImageData();
 
-		const filename = `sobel-${image.name}`;
+		// Creates the canvas to get the new Image Buffer
+		const canvas = createCanvas(width, height);
+		const context = canvas.getContext('2d');
+		const imageData = context.createImageData(width, height);
 
-		// Saves the Array of Pixeles into a image file
-		await imageOutput(sobelImageData, filename);
-		// Reads the file to get the binary code
-		const sobelImageBuffer = fs.readFileSync(filename);
-		// Deletes the persisted file
-		fs.unlinkSync(filename);
+		for (let i = 0; i < imageData.data.length; i += 4) {
+			imageData.data[i + 0] = sobelImageData.data[i + 0];
+			imageData.data[i + 1] = sobelImageData.data[i + 1];
+			imageData.data[i + 2] = sobelImageData.data[i + 2];
+			imageData.data[i + 3] = sobelImageData.data[i + 3];
+		}
+
+		context.putImageData(imageData, 0, 0);
+		// Gets the new Image Buffer
+		const sobelImageBuffer = canvas.toBuffer("image/png");
 
 		return sobelImageBuffer;
 	}

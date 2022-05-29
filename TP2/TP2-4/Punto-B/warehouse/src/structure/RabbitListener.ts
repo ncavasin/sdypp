@@ -1,58 +1,47 @@
-import amqp, { Connection, Channel, Options } from 'amqplib/callback_api';
+import amqp, { Connection, Channel, Options, Message } from 'amqplib/callback_api';
 
 import dotenv from 'dotenv';
 dotenv.config();
 
 const Log = (...args: any[]) => {
-	console.log(`[RABBIT-SERVER]`, ...args);
+	console.log(`[RABBIT-LISTENER]:`, ...args);
 }
 
 const LogError = (...args: any[]) => {
-	Log(`- [ERROR]`, ...args);
+	Log(`[ERROR]`, ...args);
 }
 
-
-export type Process = {
-	id: string,
-	messages: WrappedMessage[],
-	receivedMessages: WrappedMessage[]
-}
-
-export type WrappedMessage = {
-	processId: string,
-	messageId: string,
-	payload: any
-}
-
-export default class RabbitServer {
+export default class RabbitListener {
 	private connectionConfig!: Options.Connect;
 	private connection!: Connection;
 	private channel!: Channel
 
-	// Process UUID --> Process Data
-	private processes!: Map<string, Process>;
-
-	constructor(connectionConfig: Options.Connect) {
-		this.connectionConfig = connectionConfig;
+	constructor(config: Options.Connect) {
+		this.connectionConfig = config;
 	}
 
 	public async initialize() {
-		this.processes = new Map();
-
 		this.connection = await this.connectToQueue(this.connectionConfig);
 		this.channel = await this.createChannel(this.connection);
+
+		this.joinOrCreateQueue(this.channel, process.env.RABBIT_RESPONSE_QUEUE!);
 	}
 
-	public joinQueue(queueName: string) {
-		this.joinOrCreateQueue(this.channel, queueName);
-	}
-
-	public QueueMessages(queue: string, messages: WrappedMessage[]) {
-		for (const message of messages) {
-			const stringifyMessage = JSON.stringify(message);
-			Log(`Sending message (ID ${message.messageId})`);
-			this.channel.sendToQueue(queue, Buffer.from(stringifyMessage));
-		}
+	public onIncomingMessage(ackFn: (msg: Message | null) => void) {
+		// Handles incoming messages
+		this.channel.consume(process.env.RABBIT_RESPONSE_QUEUE!, async rawMessage => {
+			if (!rawMessage) return;
+			try {
+				// Executes the callback
+				await ackFn(rawMessage);
+				// Informs the channel with a success ack
+				this.channel.ack(rawMessage);
+			} catch (error) {
+				// Informs the channel with a failed ack
+				LogError('Failed to receive the message!', error);
+				this.channel.nack(rawMessage);
+			}
+		}, { noAck: false });
 	}
 
 	private connectToQueue(config: any): Promise<Connection> {

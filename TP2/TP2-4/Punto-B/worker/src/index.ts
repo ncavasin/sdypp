@@ -1,13 +1,19 @@
 import amqp, { Connection, Channel } from 'amqplib/callback_api';
-import fs from 'fs';
-import { v4 as uuidV4 } from 'uuid';
+import { createCanvas } from 'canvas';
 
 const pixels = require('image-pixels');
 const { Sobel } = require('sobel');
-const imageOutput = require('image-output');
 
 import dotenv from 'dotenv';
 dotenv.config();
+
+const Log = (...args: any[]) => {
+	console.log(`[WAREHOUSE-SERVER]`, ...args);
+}
+
+const LogError = (...args: any[]) => {
+	Log(`- [ERROR]`, ...args);
+}
 
 const config = {
 	protocol: process.env.RABBIT_PROTOCOL,
@@ -29,27 +35,36 @@ async function main () {
 		const channel = await createChannel(connection);
 		joinOrCreateQueue(channel, requestQueue);
 
-		console.log("[WORKER] Waiting for messages...");
+		Log('Sucessfully connected to RabbitMQ service');
+		Log('Waiting for messages...');
 
 		channel.consume(requestQueue, async function(rawMessage: any) {
-			const message = JSON.parse(rawMessage.content.toString());
+			try {
+				const message = JSON.parse(rawMessage.content.toString());
+	
+				Log(`Processing received message... (Message ID ${message.messageId})`);
 
-			console.log(`[WORKER] Processing received message... (Message ID ${message.messageId})`);
+				const requestPayloadBuffer = Buffer.from(message.payload, 'base64');
 
-			const requestPayloadBuffer = Buffer.from(message.payload, 'base64');
+				const sobelImageBuffer = await processSobelFilter(requestPayloadBuffer);
 
-			const sobelImageBuffer = await processSobelFilter(requestPayloadBuffer);
-
-			const responsePayloadBuffer = sobelImageBuffer.toString('base64');
-			message.payload = responsePayloadBuffer;
-
-			channel.sendToQueue(responseQueue, Buffer.from(JSON.stringify(message)));
-			console.log(`[WORKER] Processing completed! (Message ID ${message.messageId})`);
+				const responsePayloadBuffer = sobelImageBuffer.toString('base64');
+				message.payload = responsePayloadBuffer;
+	
+				channel.sendToQueue(responseQueue, Buffer.from(JSON.stringify(message)));
+				Log(`Processing completed! (Message ID ${message.messageId})`);
+				// Informs the channel with a success ack
+				channel.ack(rawMessage);
+			} catch (error) {
+				// Informs the channel with a failed ack
+				LogError('Failed to process message', error)
+				channel.nack(rawMessage);
+			}
 		}, {
 			noAck: false
 		});
 	} catch (error) {
-		console.error('Something went wrong!!', error);
+		LogError('Something went wrong!', error);
 	}
 }
 
@@ -61,14 +76,21 @@ async function processSobelFilter(image: Buffer) {
 	const sobel = Sobel({ data, width, height });
 	const sobelImageData = await sobel.toImageData();
 
-	const filename = `${__dirname}/sobel-${uuidV4()}.jpg`;
+	// Creates the canvas to get the new Image Buffer
+	const canvas = createCanvas(width, height);
+	const context = canvas.getContext('2d');
+	const imageData = context.createImageData(width, height);
 
-	// Saves the Array of Pixeles into a image file
-	await imageOutput(sobelImageData, filename);
-	// Reads the file to get the binary code
-	const sobelImageBuffer = fs.readFileSync(filename);
-	// Deletes the persisted file
-	fs.unlinkSync(filename);
+	for (let i = 0; i < imageData.data.length; i += 4) {
+		imageData.data[i + 0] = sobelImageData.data[i + 0];
+		imageData.data[i + 1] = sobelImageData.data[i + 1];
+		imageData.data[i + 2] = sobelImageData.data[i + 2];
+		imageData.data[i + 3] = sobelImageData.data[i + 3];
+	}
+
+	context.putImageData(imageData, 0, 0);
+	// Gets the new Image Buffer
+	const sobelImageBuffer = canvas.toBuffer("image/png");
 
 	return sobelImageBuffer;
 }
@@ -77,7 +99,7 @@ function asyncTimeout() {
 	return new Promise((res, rej) => {
 		setTimeout(() => {
 			return res(null);
-		}, 2000)
+		}, 5000)
 	})
 }
 
