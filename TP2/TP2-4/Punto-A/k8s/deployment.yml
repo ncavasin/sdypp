@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # Deployment name
+  name: centralized-sobel-server
+spec:
+  selector:
+    matchLabels:
+      # Label que le pondra a cada uno de los pods
+      app: centralized-sobel-server
+  replicas: 1
+  # Hace referencia a la data de los pods de este deployment
+  template: 
+    metadata:
+      labels:
+        app: centralized-sobel-server
+    spec:
+      # Especifica los containers que tendra cada pod
+      containers:
+        - name: centralized-sobel-server            # Nombre del container dentro de los pods
+          image: manuseligmann/sdypp-tp2-4-a    # Nombre de la imagen
+          ports:
+            - containerPort: 4001             # expone el puerto
