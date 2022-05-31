@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbit    # Nombre del Service
+spec:
+  selector:
+    app: rabbit   # Nombre del deployment a exponer
+  ports:
+    - protocol: TCP
+      port: 5672            # Puerto que el service expone al exterior.
+      targetPort: 5672    # puerto interno de los pods
+  type: ClusterIP

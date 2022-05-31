@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # Deployment name
+  name: server
+spec:
+  selector:
+    matchLabels:
+      # Label que le pondra a cada uno de los pods
+      app: server
+  replicas: 1
+  # Hace referencia a la data de los pods de este deployment
+  template: 
+    metadata:
+      labels:
+        app: server
+    spec:
+      # Especifica los containers que tendra cada pod
+      containers:
+        - name: server            # Nombre del container dentro de los pods
+          image: manuseligmann/sdypp-tp2-4-b-server    # Nombre de la imagen
+          env:
+            # Server
+            - name: PORT
+              value: "4001"
+            # RabbitMQ config
+            - name: RABBIT_PROTOCOL
+              value: "amqp"
+            - name: RABBIT_HOST
+              value: "rabbit"
+            - name: RABBIT_PORT
+              value: "5672"
+            - name: RABBIT_USERNAME
+              value: "user"
+            - name: RABBIT_PASSWORD
+              value: "password"
+            - name: RABBIT_REQUEST_QUEUE
+              value: "messages-to-process"
+            - name: RABBIT_RESPONSE_QUEUE
+              value: "processed-messages"
+            # Warehouse Server config
+            - name: WAREHOUSE_HOST
+              value: "http://warehouse"
+            - name: WAREHOUSE_PORT
+              value: "5001"
+          ports:
+            - containerPort: 4001             # expone el puerto

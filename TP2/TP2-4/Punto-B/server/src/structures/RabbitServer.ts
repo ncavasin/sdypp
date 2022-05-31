@@ -29,16 +29,11 @@ export default class RabbitServer {
 	private connection!: Connection;
 	private channel!: Channel
 
-	// Process UUID --> Process Data
-	private processes!: Map<string, Process>;
-
 	constructor(connectionConfig: Options.Connect) {
 		this.connectionConfig = connectionConfig;
 	}
 
 	public async initialize() {
-		this.processes = new Map();
-
 		this.connection = await this.connectToQueue(this.connectionConfig);
 		this.channel = await this.createChannel(this.connection);
 	}

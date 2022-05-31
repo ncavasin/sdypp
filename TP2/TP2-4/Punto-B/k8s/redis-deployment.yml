@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # Deployment name
+  name: redis
+spec:
+  selector:
+    matchLabels:
+      # Label que le pondra a cada uno de los pods
+      app: redis
+  replicas: 1
+  # Hace referencia a la data de los pods de este deployment
+  template: 
+    metadata:
+      labels:
+        app: redis
+    spec:
+      # Especifica los containers que tendra cada pod
+      containers:
+        - name: redis            # Nombre del container dentro de los pods
+          image: redis/redis-stack-server    # Nombre de la imagen
+          ports:
+            - containerPort: 6379             # expone el puerto

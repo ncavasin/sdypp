@@ -61,7 +61,7 @@ export default class Server {
 	private async initializeRabbitMQ() {
 		const config = {
 			protocol: process.env.RABBIT_PROTOCOL,
-			host: process.env.RABBIT_HOST,
+			hostname: process.env.RABBIT_HOST,
 			port: Number(process.env.RABBIT_PORT),
 			username: process.env.RABBIT_USERNAME,
 			password: process.env.RABBIT_PASSWORD

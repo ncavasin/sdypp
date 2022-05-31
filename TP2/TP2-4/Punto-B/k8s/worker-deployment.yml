@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # Deployment name
+  name: worker
+spec:
+  selector:
+    matchLabels:
+      # Label que le pondra a cada uno de los pods
+      app: worker
+  replicas: 10
+  # Hace referencia a la data de los pods de este deployment
+  template: 
+    metadata:
+      labels:
+        app: worker
+    spec:
+      # Especifica los containers que tendra cada pod
+      containers:
+        - name: worker            # Nombre del container dentro de los pods
+          image: manuseligmann/sdypp-tp2-4-b-worker    # Nombre de la imagen
+          env:
+            - name: RABBIT_PROTOCOL
+              value: "amqp"
+            - name: RABBIT_HOST
+              value: "rabbit"
+            - name: RABBIT_PORT
+              value: "5672"
+            - name: RABBIT_USERNAME
+              value: "user"
+            - name: RABBIT_PASSWORD
+              value: "password"
+            - name: RABBIT_REQUEST_QUEUE
+              value: "messages-to-process"
+            - name: RABBIT_RESPONSE_QUEUE
+              value: "processed-messages"
+            - name: RABBITMQ_DEFAULT_USER
+              value: "user"
+            - name: RABBITMQ_DEFAULT_PASS
+              value: "password"
+          ports:
+            - containerPort: 5672             # expone el puerto

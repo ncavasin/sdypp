@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: warehouse    # Nombre del Service
+spec:
+  selector:
+    app: warehouse   # Nombre del deployment a exponer
+  ports:
+    - protocol: TCP
+      port: 5001            # Puerto que el service expone al exterior.
+      targetPort: 5001    # puerto interno de los pods
+  type: ClusterIP
