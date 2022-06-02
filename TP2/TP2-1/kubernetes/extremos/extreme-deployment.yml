@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: extreme-p2p
+spec:
+  selector:
+    matchLabels:
+      app: extreme-p2p
+  replicas: 5
+  template:
+    metadata:
+      labels:
+        app: extreme-p2p
+    spec:
+      containers:
+      - name: extreme-p2p
+        image: nginx:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+
+    
