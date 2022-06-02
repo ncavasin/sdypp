@@ -4,4 +4,4 @@ server:
 
 spring:
   redis:
-    url: redis://localhost:6379
+    url: ${redis-url}
