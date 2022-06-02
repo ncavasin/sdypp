@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+</head>
+
+<body>
+  <section>
+    <div>
+      <div class="mb-3">
+        <label class="form-label">
+          Pedir archivo
+          <input id="postFiles" type="text" class="form-control">
+        </label>
+        <button class="btn btn-primary" id="locateFilename" onclick="locateFilename(`{{url}}`)">Buscar</button>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">
+          Todos archivo
+        </label>
+        <button class="btn btn-primary" id="findAll" onclick="allfiles(`{{url}}`)">Buscar</button>
+      </div>
+      <section id="file"></section>
+    </div>
+  </section>
+  <script src="js/index.js"></script>
+</body>
+
+</html>

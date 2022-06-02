@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+# create the namespace
+metadata:
+  name: sip-api
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: sip-api
+  template:
+    metadata:
+      labels:
+        app: sip-api
+    spec:
+      containers:
+        - name: app
+          image: ncavasin/sdypp-tp2-1
+          imagePullPolicy: Always
+          ports:
+            - protocol: TCP
+              # external port
+              port: 8080
+              # internal port
+              targetPort: 8080
+          env:
+            - name: redis-url
+              value: redis://
+
