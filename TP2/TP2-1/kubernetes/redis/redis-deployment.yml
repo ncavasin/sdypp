@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-img
+  namespace: default
+spec:
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  replicas: 5
+  selector:
+    matchLabels:
+      app: redis-img # identifier
+  template:
+    metadata:
+      labels:
+        app: redis-img # identifier
+    spec:
+      containers:
+        # - name: redis-img # container name
+        #   image: redis:latest
+        #   resources:
+        #     requests:
+        #       cpu: "500m"
+        #       memory: "300Mi"
+        #     limits:
+        #       cpu: "500m"
+        #       memory: "1Gi"
+        #   ports:
+        #     - containerPort: 6379
+
+        - name: redis-stack-img # container name
+          image: redis/redis-stack
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "300Mi"
+            limits:
+              cpu: "500m"
+              memory: "1Gi"
+          ports:
+            - containerPort: 6379
+            - containerPort: 8001
