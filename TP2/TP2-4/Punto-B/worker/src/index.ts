@@ -8,7 +8,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const Log = (...args: any[]) => {
-	console.log(`[WAREHOUSE-SERVER]`, ...args);
+	console.log(`[WORKER]`, ...args);
 }
 
 const LogError = (...args: any[]) => {

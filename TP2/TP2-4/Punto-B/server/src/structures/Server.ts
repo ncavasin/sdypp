@@ -98,7 +98,11 @@ export default class Server {
 			// Max height size of image chunks
 			const chunckHeightSize = 1000;
 
+			const startTime = new Date();
+
+			const fragmentationStartTime = new Date();
 			const chuncks: Buffer[] = await imageToChunks(image.data, chunckHeightSize);
+			const fragmentationEndTime = new Date();
 
 			Log(`Process started! - File: "${image.name}" - Messages: ${chuncks.length}`);
 
@@ -109,7 +113,14 @@ export default class Server {
 					id: createdProcess.id,
 					messages: createdProcess.messages.map(message => message.messageId),
 					name,
-					mimetype
+					mimetype,
+					time: {
+						startTime,
+						fragmentationTime: {
+							start: fragmentationStartTime,
+							end: fragmentationEndTime
+						}
+					}
 				}
 			})
 

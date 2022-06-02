@@ -14,7 +14,8 @@ export type Process = {
 	id: string,
 	name: string,
 	mimetype: string
-	messagesId: string[]
+	messagesId: string[],
+	times: any
 }
 
 export type WrappedMessage = {
@@ -129,7 +130,7 @@ export default class Server {
 			const { process } = req.body;
 			if (!process) return res.status(400).json('body.process is required!');
 
-			const { id, messages, name, mimetype } = process;
+			const { id, messages, name, mimetype, time } = process;
 
 			if (!id || typeof id !== 'string') return res.status(400).json({ message: 'body.process.id has to be a string!' });
 			if (!name || typeof name !== 'string') return res.json({ message: 'body.process.name has to be a string' });
@@ -142,7 +143,8 @@ export default class Server {
 				id: id,
 				name,
 				mimetype,
-				messagesId: messages
+				messagesId: messages,
+				times: time
 			}
 
 			await this._redisServer.setProcess(id, processToInsert);
@@ -209,6 +211,8 @@ export default class Server {
 
 		const receivedMessages = await this._redisServer.getReceivedMessages(processId);
 
+		const sortStartTime = new Date();
+
 		// Sort received messages
 		receivedMessages.sort((a, b) => {
 			const indexOfA = process.messagesId.indexOf(a.messageId);
@@ -218,13 +222,44 @@ export default class Server {
 			return 0;
 		});
 
+		const sortEndTime = new Date();
+
 		// Merge the messages
+		const mergeStartTime = new Date();
 		const mergedImgSharp = await this.joinImagesAsync(receivedMessages.map(message => Buffer.from(message.payload, 'base64')));
 		const bufferImg: Buffer = await mergedImgSharp.png().toBuffer();
+		const mergeEndTime = new Date();
+
+		const finishTime = new Date();
+
+		// Calculates the times
+		const startTime = new Date(process.times.startTime);
+		const fragmentationStartTime = new Date(process.times.fragmentationTime.start);
+		const fragmentationEndTime = new Date(process.times.fragmentationTime.end);
+
+		const fragmentationTime = Number(fragmentationEndTime) - Number(fragmentationStartTime);
+		const sortTotalTime = Number(sortEndTime) - Number(sortStartTime);
+		const mergeTotalTime = Number(mergeEndTime) - Number(mergeStartTime);
+		const totalTime = Number(finishTime) - Number(startTime);
+		const workersTime = Number(totalTime) - Number(mergeTotalTime) - Number(sortTotalTime) - Number(fragmentationTime);
 
 		// Stores the full image
 		await this._redisServer.setProcessFullImage(process.id, bufferImg);
+		
+		this.logPerformance(process.id, totalTime, fragmentationTime, workersTime, sortTotalTime, mergeTotalTime);
+		// Log(`Process Completed! (ID ${processId})`);
+	}
 
-		Log(`Process Completed! (ID ${processId})`);
+	logPerformance(processId: string, totalTime: number, fragmentationTime: number, workersTime: number, sortTime: number, mergeTime: number) {
+		Log(`
+PROCESS COMPLETE! (ID ${processId})
+Details:
+	- Image Fragmentation Time...................${fragmentationTime}ms - ${(fragmentationTime * 100 / totalTime).toFixed(2)}%\n
+	- Image Sobel Filter Application.............${workersTime}ms - ${(workersTime * 100 / totalTime).toFixed(2)}%\n
+	- Image Fragments Sort.......................${sortTime}ms - ${(sortTime * 100 / totalTime).toFixed(2)}%\n
+	- Image Fragments Merge......................${mergeTime}ms - ${(mergeTime * 100 / totalTime).toFixed(2)}%\n
+
+	- TOTAL TIME: ${totalTime}ms
+		`)
 	}
 }

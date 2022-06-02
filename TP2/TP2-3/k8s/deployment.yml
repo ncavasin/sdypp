@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # Deployment name
+  name: tp2-3-api
+spec:
+  selector:
+    matchLabels:
+      # Label que le pondra a cada uno de los pods
+      app: tp2-3-api
+  replicas: 3
+  # Hace referencia a la data de los pods de este deployment
+  template: 
+    metadata:
+      labels:
+        app: tp2-3-api
+    spec:
+      # Especifica los containers que tendra cada pod
+      containers:
+        - name: tp2-3-api            # Nombre del container dentro de los pods
+          image: manuseligmann/tp2-3-api    # Nombre de la imagen
+          ports:
+            - containerPort: 4001             # expone el puerto
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "300Mi"
+              cpu: "250m"
