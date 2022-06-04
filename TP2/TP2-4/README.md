@@ -13,6 +13,9 @@
 	- [2da comparación](#2da-comparacion)
 	- [3ra comparación](#3ra-comparacion)
 	- [4ta comparación](#4ta-comparacion)
+	- [Tabla de comparaciones](#tabla-de-comparaciones)
+- [Conclusión](#conclusión)
+- [Imagenes y resultados](#imagenes-y-resultados)
 
 
 ## Punto A
@@ -145,7 +148,7 @@ Tiempo total: Ninguno. El servidor no pudo procesar una imagen tan grande.
 |image3.jpg|8780 ms|11648 ms|
 |image4.jpg| - |45724 ms|
 
-### Conclusión:
+## Conclusión:
 Luego de las comparaciones, se puede observar que en todos los casos (a excepción de la ultima) el servidor descentralizado tardó mas en procesar la imagen. Analizando los logs podemos ver como la fragmentación de las imágenes tarda en promedio 40% aproximadamente de todo el proceso. Es un numero considerablemente alto siendo que, por ejemplo, la union de los fragmentos toma el 13% aproximadamente.
 
 Por otro lado, no está de mas mencionar que, en el caso que existan mayor cantidad de mensajes encolados que workers procesando, el tiempo que tardaría en completar los procesos seria mucho mayor. Esto es por que los workers solo puede procesar una solo mensaje a la vez debido a la implementacion de mensajes ACK.
