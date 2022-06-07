@@ -1,5 +1,8 @@
 import express, { Express, Request, Response } from 'express';
+import bodyParser from 'body-parser';
 import axios from 'axios';
+import fs from 'fs';
+import path from 'path';
 
 import dotenv from 'dotenv';
 
@@ -37,6 +40,7 @@ export default class Server {
 
 	initializeEndpoints() {
 		this._express.get('/', this.handleHomeRequest.bind(this));
+		this._express.get('/doMath', this.handleDoMath.bind(this));
 		this._express.post('/doSomething', this.handleDoSomethingRequest.bind(this));
 	}
 
@@ -44,9 +48,18 @@ export default class Server {
 		return res.json({ message: "Server is online" });
 	}
 
+	private handleDoMath(req: Request, res: Response) {
+		let x = 0;
+		for (let i = 1; i < 1000; i++) {
+			x += i * i / i;
+		}
+		console.log(x);
+		return res.json({ message: "Math was done successfully" });
+	}
+
 	private async handleDoSomethingRequest(req: Request, res: Response) {
 		try {
-			this.executeInBackground();
+			this.executeInBackground(req.body?.ms ?? 10000);
 			res.status(200).json({ message: 'Something was done successfully' });
 		} catch (error) {
 			LogError('Failed to do something', error);
@@ -62,20 +75,29 @@ export default class Server {
 		})
 	}
 
-	async executeInBackground() {
-		const someArray = [];
+	async executeInBackground(msTimes: number) {
+		console.log('Se comenzó a reservar memoria');
 
-		for (let i = 0; i <= 1000; i++) {
-			axios.get('https://fondosmil.com/fondo/17009.jpg')
-				.then((response => {
-					console.log('se llamo al .then');
-					someArray.push(response.data);
-					// console.log(someArray.length);
-				}))
-				.catch((error) => {})
+		const arraySize = 5000;
+		const bigArray = Array(arraySize);
+		for (let i = 0; i < bigArray.length; i++) {
+			bigArray[i] = Array(arraySize);
+		}
+
+		for (let i = 0; i < bigArray.length; i++) {
+			for (let j = 0; j < bigArray.length; j++) {
+				bigArray[i][j] = Math.random();
+			}
+		}
+
+		let total = 0;
+		for (let i = 0; i < bigArray.length; i++) {
+			for (let j = 0; j < bigArray.length; j++) {
+				total += bigArray[i][j];
+			}
 		}
 
 		await this.setTimeoutSync(10000);
-		console.log(someArray.length);
+		console.log('Se liberó');
 	}
 }

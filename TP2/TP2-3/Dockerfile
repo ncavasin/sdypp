@@ -6,6 +6,8 @@ COPY package*.json ./
 COPY tsconfig.json ./
 # copy source code to /src folder
 COPY src /src
+
+COPY images /images
 # Install dependencies
 RUN npm install
 # Build the app

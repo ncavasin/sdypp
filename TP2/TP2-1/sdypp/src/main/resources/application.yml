@@ -1,7 +1,0 @@
-server:
-  error:
-    include-message: always
-
-spring:
-  redis:
-    url: redis://redis-img-service.default.svc.cluster.local:6379

@@ -13,6 +13,9 @@
 	- [2da comparación](#2da-comparacion)
 	- [3ra comparación](#3ra-comparacion)
 	- [4ta comparación](#4ta-comparacion)
+	- [Tabla de comparaciones](#tabla-de-comparaciones)
+- [Conclusión](#conclusión)
+- [Imagenes y resultados](#imagenes-y-resultados)
 
 
 ## Punto A
@@ -60,7 +63,56 @@ Del otro lado de esta cola, se encuentra el Warehouse consumiendo los mensajes p
 Todo esto sucede luego de el primer endpoint es llamado. El segundo es usado para obtener la imagen procesada y, si no lo esta, devuelve un mensaje informado que el estado = ‘PENDING’. Este segundo endpoint, y tal como el primero, es expuesto por el Servidor Principal y para obtener la información del proceso, le consulta al Warehouse mediante endpoints tambien.
 
 ### Endpoints:
-Insertar tabla aqui
+<br>
+
+**Servidor principal**:
+
+| POST | `/sobel` |
+|:-----------------:|:-----------------------|
+| Descripción | Este endpoint es usado para enviar una imagen creando un proceso. |
+| Params | Un form-data en donde debe tener una **key** llamada `image` junto a una imagen en su **value**. |
+| Response value | Un json con un key `message` indicando una mensaje de success y un key `processId` junto el ID del proceso creado.|
+
+<br>
+<hr>
+<br>
+
+| GET | `/sobel/:processId` |
+|:-----------------:|:-----------------------|
+| Descripción | Este endpoint es usado para obtener el estado del proceso o para obtener la imagen procesada. |
+| Request params | `params.processId` |
+| Response value | La imagen procesada o un json indicando el estado del proceso. |
+
+<br>
+
+**Servidor Warehouse**:
+
+| POST | `/process` |
+|:-----------------:|:-----------------------|
+| Descripción | Este endpoint es usado para informar al warehouse sobre un nuevo process |
+| Params | El body debe contener un `process` |
+| Response value | Un json con un key `message` indicando una mensaje de success |
+
+| **Process** | `Type` | `Descripción` |
+|:-----------------:|:-----------------------:|:-----------------------|
+| id | string | El ID del proceso |
+| messages | string[] | Un arreglo de messages ID |
+| name | string | Nombre de la imagen |
+| mimetype | string | mimetype de la imagen |
+
+<br>
+<hr>
+<br>
+
+| GET | `/sobel/:processId` |
+|:-----------------:|:-----------------------|
+| Descripción | Este endpoint es usado para obtener el estado del proceso o para obtener la imagen procesada. |
+| Request params | `params.processId` |
+| Response value | La imagen procesada o un json indicando el estado del proceso. |
+
+<br>
+<hr>
+<br>
 
 ## Analisis de Performance:
 Si bien ambas APPs realizan los mismo, las dos funcionan de manera muy distinta.
@@ -145,7 +197,7 @@ Tiempo total: Ninguno. El servidor no pudo procesar una imagen tan grande.
 |image3.jpg|8780 ms|11648 ms|
 |image4.jpg| - |45724 ms|
 
-### Conclusión:
+## Conclusión:
 Luego de las comparaciones, se puede observar que en todos los casos (a excepción de la ultima) el servidor descentralizado tardó mas en procesar la imagen. Analizando los logs podemos ver como la fragmentación de las imágenes tarda en promedio 40% aproximadamente de todo el proceso. Es un numero considerablemente alto siendo que, por ejemplo, la union de los fragmentos toma el 13% aproximadamente.
 
 Por otro lado, no está de mas mencionar que, en el caso que existan mayor cantidad de mensajes encolados que workers procesando, el tiempo que tardaría en completar los procesos seria mucho mayor. Esto es por que los workers solo puede procesar una solo mensaje a la vez debido a la implementacion de mensajes ACK.
