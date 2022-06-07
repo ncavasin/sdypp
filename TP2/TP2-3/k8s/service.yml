@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: tp2-3-service    # Nombre del Service
+  name: tp2-3    # Nombre del Service
 spec:
   selector:
-    app: tp2-3-api   # Nombre del deployment a exponer
+    app: tp2-3   # Nombre del deployment a exponer
   ports:
     - protocol: TCP
       port: 4001            # Puerto que el service expone al exterior.
