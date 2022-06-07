@@ -6,7 +6,7 @@ El objetivo del siguiente informe es explicar y observar como se comporta esta A
 
 Al aplicar todos los manifiestos con el comando `$ kubectl apply -f .` y esperar unos segundos, obtendremos la siguiente informacion luego de ejecutar el siguiente comando:
 
-> $ kubectl get all
+> kubectl get all
 ```
 NAME                         READY   STATUS    RESTARTS   AGE
 pod/tp2-3-8655bfd59d-hszjj   1/1     Running   0          62m
