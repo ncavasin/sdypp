@@ -1,6 +1,10 @@
 
 # TP2 - Ejercicio 3
 
+El objetivo de este ejercicio es crear y aplicar una red flexible de nodos la cual se adapte dependiendo su carga de trabajo. Para ello, se desarrolló una sencilla API el cual expone un expoint **POST** `/doSomething` que crea un array de un tamaño significante para consumir memoria y lo borra luego de 10 segundos.
+
+El objetivo del siguiente informe es explicar y observar como se comporta esta API cuando obtiene mucho tráfico. La implementación de kubernetes permite que la APP se adapte a la carga de trabajo creando y eliminado replicas cuando sea necesario.
+
 Al aplicar todos los manifiestos con el comando `$ kubectl apply -f .` y esperar unos segundos, obtendremos la siguiente informacion luego de ejecutar el siguiente comando:
 
 > $ kubectl get all
@@ -25,7 +29,7 @@ horizontalpodautoscaler.autoscaling/tp2-3   Deployment/tp2-3   21%/50%   1      
 Con esta información podemos deducir que actualmente tenemos:
 - Un deployment con actualmente un solo pod.
 - Un Service de tipo LoadBalancer que expone al deployment y
-- Un HPA que irá agregando o quitando nuevos pods en base al target. Este target es el 50% del uso promedio de la memoria. Por lo que si es superado se creará nuevos pods, y los eliminará si el uso cae por debajo de este target por unos minutos. Actualmente el uso se encuentra en 21% y eso es porque el pod se encuentra corriendo un Servidor el cual requiere memoria.
+- Un HPA que irá agregando o quitando nuevos pods en base al target. Este target es el 50% del uso promedio de la memoria. Por lo que si es superado se creará nuevos pods, y los eliminará si el uso cae por debajo de este target. Actualmente el uso se encuentra en 21% y eso es porque el pod se encuentra corriendo un Servidor el cual requiere memoria.
 
 Si llamamos al endpoint que expone la app **POST** `/doSomething`, el uso de la memoria comenzará a incrementarse, pero para que superé el target del 50% hay que hacer muchos llamados consecutivos. Una forma de hacer esto es con el siguiente comando:
 > curl -X POST -s http://34.75.58.1:4001/doSomething?[1-1000] -H "Connection: close"
@@ -116,7 +120,7 @@ tp2-3-8655bfd59d-hszjj   0m           21Mi
 tp2-3-8655bfd59d-xsd76   0m           21Mi
 ```
 
-Si bien el uso se bajo y está por debajo del target, todavia kubernetes no ha reducido la cantidad de pods. Esto pasará si el uso promedio de la memoria continua estando debajo del target del 50%.
+Si bien el uso bajó y está por debajo del target, todavía kubernetes no ha reducido la cantidad de pods. Esto pasará si el uso promedio de la memoria continua estando debajo del target del 50% por unos minutos.
 
 Luego de unos minutos, efectivamente podemos ver como se redujo a un solo pod en el deployment:
 
