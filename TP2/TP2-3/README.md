@@ -1,6 +1,6 @@
 # TP2 - Ejercicio 3
 
-El objetivo de este ejercicio es crear y aplicar una red flexible de nodos la cual se adapte dependiendo su carga de trabajo. Para ello, se desarrolló una sencilla API el cual expone un enpoint **POST** `/doSomething` que crea un array de un tamaño significante para consumir memoria y lo borra luego de 10 segundos.
+El objetivo de este ejercicio es crear y aplicar una red flexible de nodos la cual se adapte dependiendo su carga de trabajo. Para ello, se desarrolló una sencilla API el cual expone un enpoint **POST** `/doSomething` que crea un array de un tamaño significante para consumir memoria y lo borra luego de 10 segundos. Al mismo tiempo, la implementación de este servidor en kubernetes es a través de un Deployment. Por motivos practicos de este informe, se especificó en el manifiesto del Deployment que dicho servidor requiere un numero bajo de memoria (100Mi) para que sea facil superar el target del HPA y escalar con facilidad.
 
 El objetivo del siguiente informe es explicar y observar como se comporta esta API cuando obtiene mucho tráfico. La implementación con kubernetes permite que la APP se adapte a la carga de trabajo creando y eliminado replicas cuando sea necesario.
 

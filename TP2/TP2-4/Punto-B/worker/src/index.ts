@@ -124,6 +124,6 @@ function createChannel(connection: Connection): Promise<Channel> {
 
 function joinOrCreateQueue(channel: Channel, queueName: string): void {
 	channel.assertQueue(queueName, {
-		durable: false
+		durable: true
 	})
 }

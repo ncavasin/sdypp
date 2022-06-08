@@ -8,7 +8,7 @@ spec:
     matchLabels:
       # Label que le pondra a cada uno de los pods
       app: redis
-  replicas: 1
+  replicas: 2
   # Hace referencia a la data de los pods de este deployment
   template: 
     metadata:

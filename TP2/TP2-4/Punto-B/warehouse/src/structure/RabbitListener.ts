@@ -63,6 +63,6 @@ export default class RabbitListener {
 	}
 
 	private joinOrCreateQueue(channel: Channel, queueName: string): void {
-		channel.assertQueue(queueName, { durable: false });
+		channel.assertQueue(queueName, { durable: true });
 	}
 }
