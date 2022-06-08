@@ -38,15 +38,15 @@ function httpQuery(method, url, body) {
 
 function postFile(file, address) {
   const response = httpQuery("POST", "http://"+address+"/api/p2p/locate", { file });
-  let table = '<table class="table"><thead><tr><th scope="col">Owner</th></tr></thead><tbody><tr>';
+  let table = '<table class="table"><thead><tr><th scope="col">Owner</th><th scope="col">Descargar</th></tr></thead><tbody><tr>';
 
 
   response.forEach(({ owner }) => {
-    table += '<td>' + owner + '</td>'
+    table += '<tr><td>' + owner + '<td><a href="http://'+owner+'/descargar/'+ file+'">Descargar</a></td></td></tr>'//'+owner+','+ file+' <button class="btn btn-primary" id="findAll" onclick="allfiles(`{{url}}`)">Buscar</button>
+    console.log(owner, file)
   });
 
   table += '</tr></tbody></table>';
-  console.log(table)
 
   document.querySelector("#file").innerHTML = table;
 }
