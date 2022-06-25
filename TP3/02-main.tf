@@ -30,7 +30,7 @@ resource "google_compute_firewall" "webserver" {
 
 # [STEP 3] - Create a public IP for the instance
 resource "google_compute_address" "static" {
-  name = "instance_public_IP"
+  name = "publicip"
   project = var.project
   region = var.region
   depends_on = [ google_compute_firewall.ssh ]

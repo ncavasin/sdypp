@@ -13,7 +13,7 @@ variable "zone" {
 variable "project" {
     type = string
     description = "Proyect's ID"
-    default = "proyectodemo-353320"
+    default = "tp3-iac-354414"
 }
 
 variable "user" {
@@ -25,9 +25,9 @@ variable "vm_name" {
 
 variable "privatekeypath" {
     type = string
-    default = "google_compute_engine"
+    default = "./ssh_keys/google_compute_engine"
 }
 variable "publickeypath" {
     type = string
-    default = "google_compute_engine.pub"
+    default = "./ssh_keys/google_compute_engine.pub"
 }
