@@ -8,7 +8,7 @@ terraform {
 }
 
 provider "google" {
-  credentials = file("clavesdavid.json")
+  credentials = file("tp3-iac-credentials.json")
 
   project = var.project
   region  = var.region
