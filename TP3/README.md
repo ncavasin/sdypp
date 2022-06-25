@@ -14,7 +14,7 @@ este par será utilizada durante la creación de la instancia para que una vez l
 
 Proceso de generación de claves:
 
-``ssh-keygen -t rsa -f google_compute_engine``: crea el par de claves.
+``ssh-keygen -t rsa -f google_compute_engine``: crea el par de claves **SIN PASSPHRASE**. Caso contrario, fallará el proceso.
 
 ``mkdir ssh_keys``: crea el directorio donde TF buscará las claves.
 
