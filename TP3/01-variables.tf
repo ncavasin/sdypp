@@ -13,7 +13,7 @@ variable "zone" {
 variable "project" {
     type = string
     description = "Proyect's ID"
-    default = "tp3-iac-354414"
+    default = "sdypp-352002"
 }
 
 variable "user" {
