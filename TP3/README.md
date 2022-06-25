@@ -13,8 +13,11 @@ Para poder ingresar a la instancia que será creada, se necesita contar con un p
 este par será utilizada durante la creación de la instancia para que una vez levantada podamos accederla.
 
 Proceso de generación de claves:
+
 ``ssh-keygen -t rsa -f google_compute_engine``: crea el par de claves.
+
 ``mkdir ssh_keys``: crea el directorio donde TF buscará las claves.
+
 ``mv google_compute_engine* /ssh_keys``: mueve las claves creadas al directorio donde TF las buscará.
 
 
