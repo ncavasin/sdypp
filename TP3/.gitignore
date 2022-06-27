@@ -2,3 +2,5 @@
 tp3-iac-credentials.json
 *.tfstate*
 ssh_keys
+*.txt
+*.cast
