@@ -2,31 +2,34 @@
 
 ### Service Account credentials
 
-Es necesario contar con un archivo .json que permita autenticarse contra GCP para poder obtener acceso
-a la cuenta destino donde se creará la infraestructura.
+Para poder desplegar infraestructura utilizando Terraform es necesario contar con acceso a una cuenta asociada a algún Cloud provider tal como AWS, GCP, Azure, etc. En este caso, utilizaremos GCP debido a que otorga 300 USD de prueba y es más que suficiente para realizar lo que el presente trabajo demanda.
 
-!cerrar idea!
+Con el fin de poder autenticarse contra GCP es necesario contar las credenciales en formato ``.json`` de una Service Account asociada a un proyecto. Esta Service Account debe tener permisos de creación y edición sobre la API de *Compute Engine* y a su vez esta debe habilitarse manualmente.
+
+> Si alguno de los requisitos no se cumple, los comandos ejecutados por Terraform fallarán.
+
+Por motivos de seguridad, dichas credenciales no serán publicadas en el presente repositorio. Sin embargo, si se desea acceder a las mismas puede contactar a cualquier miembro del equipo.
+
 
 ### SSH key pair
 
-Para poder ingresar a la instancia que será creada, se necesita contar con un par de claves SSH. La clave pública de 
-este par será utilizada durante la creación de la instancia para que una vez levantada podamos accederla.
+Para poder ingresar a la instancia que será creada se necesita contar con un par de claves SSH. La clave pública de este par será utilizada durante la creación de la instancia para que una vez levantada podamos accederla.
 
 Proceso de generación de claves:
 
 ``ssh-keygen -t rsa -f google_compute_engine``: crea el par de claves **SIN PASSPHRASE**. Caso contrario, fallará el proceso.
 
-``mkdir ssh_keys``: crea el directorio donde TF buscará las claves.
+``mkdir ssh_keys``: crea el directorio donde Terraform buscará las claves.
 
-``mv google_compute_engine* /ssh_keys``: mueve las claves creadas al directorio donde TF las buscará.
+``mv google_compute_engine* /ssh_keys``: mueve las claves creadas al directorio donde Terraform las buscará.
 
 
-### Init TF repository
+### Descargar dependencias del provider
 
 Ejecutar el comando ``terraform init`` para descargar las dependencias definidas en el archivo ``00-providers``.
 
 ```bash
-~terraform init
+$ terraform init
 
 Initializing the backend...
 
@@ -53,12 +56,12 @@ commands will detect it and remind you to do so if necessary.
 
 ## Creación de la instancia
 
-Una vez inicializado descargadas todas las dependencias necesarias nuestro repositorio de terraform se encuentra en condiciones de poder crear y destruir instancias según lo definido en los diferentes archivos.
+Una vez descargadas todas las dependencias necesarias, nuestro repositorio se encuentra en condiciones de poder crear y destruir instancias utlizando Terraform según lo definido en los diferentes archivos.
 
-Para ello, primero debemos ejecutar el comando ``terraform plan`` que se encargará de determinar el estado final de los recursos que nuestro repositorio declara y luego lo compara con el estado actual del mismo para mostrar claramente el *plan* de ejecución.
+Para ello, primero debemos ejecutar el comando ``terraform plan``. Este comando se encarga de determinar el estado final de los recursos que nuestro repositorio declara y luego lo compara con el estado actual del mismo para identificar el *plan* de ejecución que nos permitirá alcanzar dicho estado.
 
 ```bash
-~terraform plan
+$ terraform plan
 
 Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
 + create
@@ -214,7 +217,7 @@ Si estamos de acuerdo con el plan definido, indicamos a terraform que deseamos q
 
 
 ```bash
-~terraform apply 
+$ terraform apply 
 
 Plan: 4 to add, 0 to change, 0 to destroy.
 
@@ -305,194 +308,21 @@ google_compute_instance.dev (remote-exec): google-cloud-: [             ] 240/33
 google_compute_instance.dev (remote-exec): google-cloud-: [#            ] 256/3318
 google_compute_instance.dev (remote-exec): google-cloud-: [#            ] 272/3318
 google_compute_instance.dev (remote-exec): google-cloud-: [#            ] 288/3318
-google_compute_instance.dev (remote-exec): google-cloud-: [#            ] 304/3318
-google_compute_instance.dev (remote-exec): google-cloud-: [#            ] 320/3318
-google_compute_instance.dev (remote-exec): google-cloud-: [#            ] 336/3318
-google_compute_instance.dev (remote-exec): google-cloud-: [#            ] 352/3318
-google_compute_instance.dev (remote-exec): google-cloud-: [#            ] 368/3318
-google_compute_instance.dev (remote-exec): google-cloud-: [#            ] 384/3318
-google_compute_instance.dev (remote-exec): google-cloud-: [#            ] 400/3318
-google_compute_instance.dev (remote-exec): google-cloud-: [#            ] 416/3318
-google_compute_instance.dev (remote-exec): google-cloud-: [#            ] 432/3318
-google_compute_instance.dev (remote-exec): google-cloud-: [#            ] 448/3318
-google_compute_instance.dev (remote-exec): google-cloud-: [#            ] 464/3318
-google_compute_instance.dev (remote-exec): google-cloud-: [#            ] 480/3318
-google_compute_instance.dev (remote-exec): google-cloud-: [#            ] 496/3318
-google_compute_instance.dev (remote-exec): google-cloud-: [##           ] 512/3318
-google_compute_instance.dev (remote-exec): google-cloud-: [##           ] 528/3318
-google_compute_instance.dev (remote-exec): google-cloud-: [##           ] 544/3318
-google_compute_instance.dev (remote-exec): google-cloud-: [##           ] 560/3318
-google_compute_instance.dev (remote-exec): google-cloud-: [##           ] 576/3318
-google_compute_instance.dev (remote-exec): google-cloud-: [##           ] 592/3318
-google_compute_instance.dev (remote-exec): google-cloud-: [##           ] 608/3318
-google_compute_instance.dev (remote-exec): google-cloud-: [##           ] 624/3318
-google_compute_instance.dev (remote-exec): google-cloud-: [##           ] 640/3318
-google_compute_instance.dev (remote-exec): google-cloud-: [##           ] 656/3318
-google_compute_instance.dev (remote-exec): google-cloud-: [##           ] 672/3318
-google_compute_instance.dev (remote-exec): google-cloud-: [##           ] 688/3318
-google_compute_instance.dev (remote-exec): google-cloud-: [##           ] 704/3318
-google_compute_instance.dev (remote-exec): google-cloud-: [##           ] 720/3318
-google_compute_instance.dev (remote-exec): google-cloud-: [##           ] 736/3318
-google_compute_instance.dev (remote-exec): google-cloud-: [##           ] 752/3318
-google_compute_instance.dev (remote-exec): google-cloud-: [###          ] 768/3318
-google_compute_instance.dev (remote-exec): google-cloud-: [###          ] 784/3318
-google_compute_instance.dev (remote-exec): google-cloud-: [###          ] 800/3318
-google_compute_instance.dev (remote-exec): google-cloud-: [###          ] 816/3318
-google_compute_instance.dev (remote-exec): google-cloud-: [###          ] 832/3318
-google_compute_instance.dev (remote-exec): google-cloud-: [###          ] 848/3318
+.
+.
+.
 google_compute_instance.dev (remote-exec): google-cloud-: [###          ] 864/3318
-google_compute_instance.dev (remote-exec): google-cloud-: [###          ] 880/3318
-google_compute_instance.dev (remote-exec): google-cloud-: [###          ] 896/3318
-google_compute_instance.dev (remote-exec): google-cloud-: [###          ] 912/3318
-google_compute_instance.dev (remote-exec): google-cloud-: [###          ] 928/3318
-google_compute_instance.dev (remote-exec): google-cloud-: [###          ] 944/3318
-google_compute_instance.dev (remote-exec): google-cloud-: [###          ] 960/3318
-google_compute_instance.dev (remote-exec): google-cloud-: [###          ] 976/3318
-google_compute_instance.dev (remote-exec): google-cloud-: [###          ] 992/3318
-google_compute_instance.dev (remote-exec): google-cloud: [###          ] 1008/3318
-google_compute_instance.dev (remote-exec): google-cloud: [####         ] 1024/3318
-google_compute_instance.dev (remote-exec): google-cloud: [####         ] 1040/3318
-google_compute_instance.dev (remote-exec): google-cloud: [####         ] 1056/3318
-google_compute_instance.dev (remote-exec): google-cloud: [####         ] 1072/3318
-google_compute_instance.dev (remote-exec): google-cloud: [####         ] 1088/3318
-google_compute_instance.dev (remote-exec): google-cloud: [####         ] 1104/3318
-google_compute_instance.dev (remote-exec): google-cloud: [####         ] 1120/3318
-google_compute_instance.dev (remote-exec): google-cloud: [####         ] 1136/3318
-google_compute_instance.dev (remote-exec): google-cloud: [####         ] 1152/3318
-google_compute_instance.dev (remote-exec): google-cloud: [####         ] 1168/3318
-google_compute_instance.dev (remote-exec): google-cloud: [####         ] 1184/3318
-google_compute_instance.dev (remote-exec): google-cloud: [####         ] 1200/3318
-google_compute_instance.dev (remote-exec): google-cloud: [####         ] 1216/3318
-google_compute_instance.dev (remote-exec): google-cloud: [####         ] 1232/3318
-google_compute_instance.dev (remote-exec): google-cloud: [####         ] 1248/3318
-google_compute_instance.dev (remote-exec): google-cloud: [####         ] 1264/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#####        ] 1280/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#####        ] 1296/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#####        ] 1312/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#####        ] 1328/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#####        ] 1344/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#####        ] 1360/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#####        ] 1376/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#####        ] 1392/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#####        ] 1408/3318
+.
+.
+.
 google_compute_instance.dev (remote-exec): google-cloud: [#####        ] 1424/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#####        ] 1440/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#####        ] 1456/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#####        ] 1472/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#####        ] 1488/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#####        ] 1504/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#####        ] 1520/3318
-google_compute_instance.dev (remote-exec): google-cloud: [######       ] 1536/3318
-google_compute_instance.dev (remote-exec): google-cloud: [######       ] 1552/3318
-google_compute_instance.dev (remote-exec): google-cloud: [######       ] 1568/3318
-google_compute_instance.dev (remote-exec): google-cloud: [######       ] 1584/3318
-google_compute_instance.dev (remote-exec): google-cloud: [######       ] 1600/3318
-google_compute_instance.dev (remote-exec): google-cloud: [######       ] 1616/3318
-google_compute_instance.dev (remote-exec): google-cloud: [######       ] 1632/3318
-google_compute_instance.dev (remote-exec): google-cloud: [######       ] 1648/3318
-google_compute_instance.dev (remote-exec): google-cloud: [######       ] 1664/3318
-google_compute_instance.dev (remote-exec): google-cloud: [######       ] 1680/3318
-google_compute_instance.dev (remote-exec): google-cloud: [######       ] 1696/3318
-google_compute_instance.dev (remote-exec): google-cloud: [######       ] 1712/3318
-google_compute_instance.dev (remote-exec): google-cloud: [######       ] 1728/3318
-google_compute_instance.dev (remote-exec): google-cloud: [######       ] 1744/3318
-google_compute_instance.dev (remote-exec): google-cloud: [######       ] 1760/3318
-google_compute_instance.dev (remote-exec): google-cloud: [######       ] 1776/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#######      ] 1792/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#######      ] 1808/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#######      ] 1824/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#######      ] 1840/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#######      ] 1856/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#######      ] 1872/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#######      ] 1888/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#######      ] 1904/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#######      ] 1920/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#######      ] 1936/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#######      ] 1952/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#######      ] 1968/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#######      ] 1984/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#######      ] 2000/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#######      ] 2016/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#######      ] 2032/3318
-google_compute_instance.dev (remote-exec): google-cloud: [########     ] 2048/3318
-google_compute_instance.dev (remote-exec): google-cloud: [########     ] 2064/3318
-google_compute_instance.dev (remote-exec): google-cloud: [########     ] 2080/3318
-google_compute_instance.dev (remote-exec): google-cloud: [########     ] 2096/3318
-google_compute_instance.dev (remote-exec): google-cloud: [########     ] 2112/3318
-google_compute_instance.dev (remote-exec): google-cloud: [########     ] 2128/3318
-google_compute_instance.dev (remote-exec): google-cloud: [########     ] 2144/3318
-google_compute_instance.dev (remote-exec): google-cloud: [########     ] 2160/3318
-google_compute_instance.dev (remote-exec): google-cloud: [########     ] 2176/3318
-google_compute_instance.dev (remote-exec): google-cloud: [########     ] 2192/3318
-google_compute_instance.dev (remote-exec): google-cloud: [########     ] 2208/3318
-google_compute_instance.dev (remote-exec): google-cloud: [########     ] 2224/3318
-google_compute_instance.dev (remote-exec): google-cloud: [########     ] 2240/3318
-google_compute_instance.dev (remote-exec): google-cloud: [########     ] 2256/3318
-google_compute_instance.dev (remote-exec): google-cloud: [########     ] 2272/3318
-google_compute_instance.dev (remote-exec): google-cloud: [########     ] 2288/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#########    ] 2304/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#########    ] 2320/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#########    ] 2336/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#########    ] 2352/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#########    ] 2368/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#########    ] 2384/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#########    ] 2400/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#########    ] 2416/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#########    ] 2432/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#########    ] 2448/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#########    ] 2464/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#########    ] 2480/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#########    ] 2496/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#########    ] 2512/3318
+.
+.
+.
 google_compute_instance.dev (remote-exec): google-cloud: [#########    ] 2528/3318
-google_compute_instance.dev (remote-exec): google-cloud: [#########    ] 2544/3318
-google_compute_instance.dev (remote-exec): google-cloud: [##########   ] 2560/3318
-google_compute_instance.dev (remote-exec): google-cloud: [##########   ] 2576/3318
-google_compute_instance.dev (remote-exec): google-cloud: [##########   ] 2592/3318
-google_compute_instance.dev (remote-exec): google-cloud: [##########   ] 2608/3318
-google_compute_instance.dev (remote-exec): google-cloud: [##########   ] 2624/3318
-google_compute_instance.dev (remote-exec): google-cloud: [##########   ] 2640/3318
-google_compute_instance.dev (remote-exec): google-cloud: [##########   ] 2656/3318
-google_compute_instance.dev (remote-exec): google-cloud: [##########   ] 2672/3318
-google_compute_instance.dev (remote-exec): google-cloud: [##########   ] 2688/3318
-google_compute_instance.dev (remote-exec): google-cloud: [##########   ] 2704/3318
-google_compute_instance.dev (remote-exec): google-cloud: [##########   ] 2720/3318
-google_compute_instance.dev (remote-exec): google-cloud: [##########   ] 2736/3318
-google_compute_instance.dev (remote-exec): google-cloud: [##########   ] 2752/3318
-google_compute_instance.dev (remote-exec): google-cloud: [##########   ] 2768/3318
-google_compute_instance.dev (remote-exec): google-cloud: [##########   ] 2784/3318
-google_compute_instance.dev (remote-exec): google-cloud: [##########   ] 2800/3318
-google_compute_instance.dev (remote-exec): google-cloud: [###########  ] 2816/3318
-google_compute_instance.dev (remote-exec): google-cloud: [###########  ] 2832/3318
-google_compute_instance.dev (remote-exec): google-cloud: [###########  ] 2848/3318
-google_compute_instance.dev (remote-exec): google-cloud: [###########  ] 2864/3318
-google_compute_instance.dev (remote-exec): google-cloud: [###########  ] 2880/3318
-google_compute_instance.dev (remote-exec): google-cloud: [###########  ] 2896/3318
-google_compute_instance.dev (remote-exec): google-cloud: [###########  ] 2912/3318
-google_compute_instance.dev (remote-exec): google-cloud: [###########  ] 2928/3318
-google_compute_instance.dev (remote-exec): google-cloud: [###########  ] 2944/3318
-google_compute_instance.dev (remote-exec): google-cloud: [###########  ] 2960/3318
-google_compute_instance.dev (remote-exec): google-cloud: [###########  ] 2976/3318
-google_compute_instance.dev (remote-exec): google-cloud: [###########  ] 2992/3318
-google_compute_instance.dev (remote-exec): google-cloud: [###########  ] 3008/3318
-google_compute_instance.dev (remote-exec): google-cloud: [###########  ] 3024/3318
-google_compute_instance.dev (remote-exec): google-cloud: [###########  ] 3040/3318
-google_compute_instance.dev (remote-exec): google-cloud: [###########  ] 3056/3318
-google_compute_instance.dev (remote-exec): google-cloud: [############ ] 3072/3318
-google_compute_instance.dev (remote-exec): google-cloud: [############ ] 3088/3318
-google_compute_instance.dev (remote-exec): google-cloud: [############ ] 3104/3318
-google_compute_instance.dev (remote-exec): google-cloud: [############ ] 3120/3318
-google_compute_instance.dev (remote-exec): google-cloud: [############ ] 3136/3318
-google_compute_instance.dev (remote-exec): google-cloud: [############ ] 3152/3318
-google_compute_instance.dev (remote-exec): google-cloud: [############ ] 3168/3318
-google_compute_instance.dev (remote-exec): google-cloud: [############ ] 3184/3318
-google_compute_instance.dev (remote-exec): google-cloud: [############ ] 3200/3318
-google_compute_instance.dev (remote-exec): google-cloud: [############ ] 3216/3318
-google_compute_instance.dev (remote-exec): google-cloud: [############ ] 3232/3318
-google_compute_instance.dev (remote-exec): google-cloud: [############ ] 3248/3318
-google_compute_instance.dev (remote-exec): google-cloud: [############ ] 3264/3318
-google_compute_instance.dev (remote-exec): google-cloud: [############ ] 3280/3318
-google_compute_instance.dev (remote-exec): google-cloud: [############ ] 3296/3318
+.
+.
+.
 google_compute_instance.dev (remote-exec): google-cloud: [############ ] 3312/3318
 google_compute_instance.dev (remote-exec): google-cloud-sdk              3318/3318
 google_compute_instance.dev (remote-exec): google-compute-: [#              ] 1/10
@@ -679,37 +509,348 @@ nombrevm = "vm-public-bastion"
 
 ```
 
-
 ## Conexión a la instancia
 
-La conexión a la instancia creada será a través de SSH (autenticándonos de manera automática con las claves creadas en la etapa de Prerequisitos) ejecutando el comando ``ssh -o StrictHostKeyChecking=no -i ./ssh_keys/google_compute_engine ncavasin@34.73.33.155``.
+Al llegar a este punto la instancia ha sido creada exitosamente y ya puede ser consumida. La conexión a la misma será realizada a través de SSH (autenticándonos de manera automática con las claves creadas en la etapa de Prerequisitos) ejecutando el comando:
+
+``ssh -o StrictHostKeyChecking=no -i ./ssh_keys/google_compute_engine ncavasin@34.73.33.155``.
 
 Como se puede observar, se agrega la IP pública de la instancia creada como host conocido y luego accedemos a su shell.
 
-![](https://raw.githubusercontent.com/ncavasin/sdypp/main/TP3/imgs/instance_ssh_access.png)
+```bash
+$ ssh -o StrictHostChecking=no -i ./ssh_keys/google_compute_engine ncavasin@34.73.33.155
+Warning: Permanently added '34.73.33.155' (ED25519) to the list of known hosts.
+Last login: Sun Jun 26 22:43:11 2022 from 181.170.115.210
+[ncavasin@vm-public-bastion ~]$
+```
 
 La VM está ahora a nuestra dispoción.
 
 
 ## Instalación de paquetes
 
+Una vez logueados, procedemos a instalar ``wget``:
+
+```bash
+[ncavasin@vm-public-bastion ~]$ sudo yum  install wget
+Loaded plugins: fastestmirror
+Loading mirror speeds from cached hostfile
+ * base: mirror.wdc1.us.leaseweb.net
+ * epel: mirror.umd.edu
+ * extras: mirror.centos.iad1.serverforge.org
+ * updates: centos.mirror.constant.com
+Resolving Dependencies
+--> Running transaction check
+---> Package wget.x86_64 0:1.14-18.el7_6.1 will be installed
+--> Finished Dependency Resolution
+
+Dependencies Resolved
+
+============================================================================================================================================================================
+ Package                               Arch                                    Version                                          Repository                             Size
+============================================================================================================================================================================
+Installing:
+ wget                                  x86_64                                  1.14-18.el7_6.1                                  base                                  547 k
+
+Transaction Summary
+============================================================================================================================================================================
+Install  1 Package
+
+Total download size: 547 k
+Installed size: 2.0 M
+Is this ok [y/d/N]: y
+Downloading packages:
+wget-1.14-18.el7_6.1.x86_64.rpm                                                                                                                      | 547 kB  00:00:00     
+Running transaction check
+Running transaction test
+Transaction test succeeded
+Running transaction
+  Installing : wget-1.14-18.el7_6.1.x86_64                                                                                                                              1/1 
+  Verifying  : wget-1.14-18.el7_6.1.x86_64                                                                                                                              1/1 
+
+Installed:
+  wget.x86_64 0:1.14-18.el7_6.1                                                                                                                                             
+
+Complete!
+```
+
+Y luego instalamos ``htop``:
+```bash
+[ncavasin@vm-public-bastion ~]$ sudo yum  install htop
+Loaded plugins: fastestmirror
+Loading mirror speeds from cached hostfile
+ * base: mirror.wdc1.us.leaseweb.net
+ * epel: mirror.umd.edu
+ * extras: mirror.centos.iad1.serverforge.org
+ * updates: centos.mirror.constant.com
+Resolving Dependencies
+--> Running transaction check
+---> Package htop.x86_64 0:2.2.0-3.el7 will be installed
+--> Finished Dependency Resolution
+
+Dependencies Resolved
+
+======================================================================================================================================================================================
+ Package                                  Arch                                       Version                                           Repository                                Size
+======================================================================================================================================================================================
+Installing:
+ htop                                     x86_64                                     2.2.0-3.el7                                       epel                                     103 k
+
+Transaction Summary
+======================================================================================================================================================================================
+Install  1 Package
+
+Total download size: 103 k
+Installed size: 218 k
+Is this ok [y/d/N]: y
+Downloading packages:
+htop-2.2.0-3.el7.x86_64.rpm                                                                                                                                    | 103 kB  00:00:00     
+Running transaction check
+Running transaction test
+Transaction test succeeded
+Running transaction
+  Installing : htop-2.2.0-3.el7.x86_64                                                                                                                                            1/1 
+  Verifying  : htop-2.2.0-3.el7.x86_64                                                                                                                                            1/1 
+
+Installed:
+  htop.x86_64 0:2.2.0-3.el7                                                                                                                                                           
+
+Complete!
+
+```
+
+Los recursos del sistema según ``htop``:
+
+![](https://raw.githubusercontent.com/ncavasin/sdypp/main/TP3/imgs/instance_htop_resources.png)
 
 
 
 ## Comparativa descarga imagen ISO de Ubuntu
 
-Para descargar la última versión de Ubuntu desktop se debe utilizar el comando``wget https://releases.ubuntu.com/20.04/ubuntu-20.04.4-desktop-amd64.iso ``.
+Para comparar las velocidades entre la instancia de GCP y una pc fuera del cloud de GCP, se descargará la última versión desktop de Ubuntu a través del comando ``wget``.
 
-Local:
+### Local
+```bash
+$ wget https://releases.ubuntu.com/20.04/ubuntu-20.04.4-desktop-amd64.iso
+--2022-06-26 20:15:16--  https://releases.ubuntu.com/20.04/ubuntu-20.04.4-desktop-amd64.iso
+Loaded CA certificate '/etc/ssl/certs/ca-certificates.crt'
+Resolving releases.ubuntu.com (releases.ubuntu.com)... 91.189.91.124, 185.125.190.40, 91.189.91.123, ...
+Connecting to releases.ubuntu.com (releases.ubuntu.com)|91.189.91.124|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 3379068928 (3.1G) [application/x-iso9660-image]
+Saving to: ‘ubuntu-20.04.4-desktop-amd64.iso’
+
+ubuntu-20.04.4-desktop-amd64.iso              100%[===============================================================================================>]   3.15G  7.95MB/s    in 6m 37s  
+
+2022-06-26 20:21:55 (8.11 MB/s) - ‘ubuntu-20.04.4-desktop-amd64.iso’ saved [3379068928/3379068928]
+```
 
 
+Como se puede observar, el tiempo de descarga es de 6 minutos y 37 segundos con una velocidad de descarga de 7.95 MB/s.
 
+### Instancia GCP
+```bash
+[ncavasin@vm-public-bastion ~]$ wget https://releases.ubuntu.com/20.04/ubuntu-20.04.4-desktop-amd64.iso
+--2022-06-26 23:12:22--  https://releases.ubuntu.com/20.04/ubuntu-20.04.4-desktop-amd64.iso
+Resolving releases.ubuntu.com (releases.ubuntu.com)... 91.189.91.123, 91.189.91.124, 185.125.190.37, ...
+Connecting to releases.ubuntu.com (releases.ubuntu.com)|91.189.91.123|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 3379068928 (3.1G) [application/x-iso9660-image]
+Saving to: ‘ubuntu-20.04.4-desktop-amd64.iso’
 
-Instancia EC2:
+100%[==========================================================================================================================================>] 3,379,068,928 36.0MB/s   in 87s    
+
+2022-06-26 23:13:50 (36.9 MB/s) - ‘ubuntu-20.04.4-desktop-amd64.iso’ saved [3379068928/3379068928]
+```
+Mientras que en la instancia demora unos 87 segundos por poseer una velocidad de descarga de 36 MB/s.
+
+> La velocidad de descarga es increíblemente superior en la cloud de GCP respecto a la de un ISP regular.
 
 
 ## Copiado de archivos
 
+### Local a Instancia
+
+Se crea un archivo llamado ``local_transfer.txt`` con el contenido "prueba local" y luego se lo copia a destino utilizando SSH.
+
+```bash
+$ echo "prueba local" > local_transfer.txt
+scp -i ./ssh_keys/google_compute_engine local_transfer.txt ncavasin@34.73.33.155:/home/ncavasin/
+local_transfer.txt                                                                                                                                  100%   13     0.1KB/s   00:00    
+```
+
+Verificación en instancia:
+```bash
+[ncavasin@vm-public-bastion ~]$ ls -al
+total 3299888
+drwx------. 4 ncavasin ncavasin        155 Jun 26 23:20 .
+drwxr-xr-x. 3 root     root             22 Jun 26 22:43 ..
+-rw-r--r--. 1 ncavasin ncavasin         18 Nov 24  2021 .bash_logout
+-rw-r--r--. 1 ncavasin ncavasin        193 Nov 24  2021 .bash_profile
+-rw-r--r--. 1 ncavasin ncavasin        231 Nov 24  2021 .bashrc
+drwx------. 3 ncavasin ncavasin         18 Jun 26 23:08 .config
+-rw-r--r--. 1 ncavasin ncavasin         13 Jun 26 23:20 local_transfer.txt
+drwx------. 2 ncavasin ncavasin         29 Jun 26 22:43 .ssh
+-rw-rw-r--. 1 ncavasin ncavasin 3379068928 Feb 23 09:10 ubuntu-20.04.4-desktop-amd64.iso
+[ncavasin@vm-public-bastion ~]$ cat local_transfer.txt 
+prueba local
+[ncavasin@vm-public-bastion ~]$ 
+```
+
+### Instancia a local
+Se crea un archivo llamado ``remote_transfer.txt`` con el contenido "prueba remota" y luego se lo copia a destino utilizando SSH.
+
+```bash
+
+```
+
+Verificación en local:
+
+```bash
+
+```
+
+
+
+## Destrucción de la infraestructura
+
+Para finalizar, destruimos la infraestructura desplegada con el comando ``terraform destroy``.
+
+```bash
+$ terraform destroy
+google_compute_firewall.webserver: Refreshing state... [id=projects/sdypp-352002/global/firewalls/ws]
+google_compute_firewall.ssh: Refreshing state... [id=projects/sdypp-352002/global/firewalls/ssh]
+google_compute_address.static: Refreshing state... [id=projects/sdypp-352002/regions/us-east1/addresses/publicip]
+google_compute_instance.dev: Refreshing state... [id=projects/sdypp-352002/zones/us-east1-b/instances/vm-public-bastion]
+
+Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
+  - destroy
+
+Terraform will perform the following actions:
+
+  # google_compute_address.static will be destroyed
+  - resource "google_compute_address" "static" {
+      - address            = "34.73.33.155" -> null
+      - address_type       = "EXTERNAL" -> null
+      - creation_timestamp = "2022-06-26T15:42:37.709-07:00" -> null
+      - id                 = "projects/sdypp-352002/regions/us-east1/addresses/publicip" -> null
+      - name               = "publicip" -> null
+      - network_tier       = "PREMIUM" -> null
+      - project            = "sdypp-352002" -> null
+      - region             = "us-east1" -> null
+      - self_link          = "https://www.googleapis.com/compute/v1/projects/sdypp-352002/regions/us-east1/addresses/publicip" -> null
+      - users              = [
+          - "https://www.googleapis.com/compute/v1/projects/sdypp-352002/zones/us-east1-b/instances/vm-public-bastion",
+        ] -> null
+    }
+
+  # google_compute_firewall.ssh will be destroyed
+  - resource "google_compute_firewall" "ssh" {
+      - creation_timestamp      = "2022-06-26T15:42:29.383-07:00" -> null
+      - destination_ranges      = [] -> null
+      - direction               = "INGRESS" -> null
+      - disabled                = false -> null
+      - enable_logging          = false -> null
+      - id                      = "projects/sdypp-352002/global/firewalls/ssh" -> null
+      - name                    = "ssh" -> null
+      - network                 = "https://www.googleapis.com/compute/v1/projects/sdypp-352002/global/networks/default" -> null
+      - priority                = 1000 -> null
+      - project                 = "sdypp-352002" -> null
+      - self_link               = "https://www.googleapis.com/compute/v1/projects/sdypp-352002/global/firewalls/ssh" -> null
+      - source_ranges           = [
+          - "0.0.0.0/0",
+        ] -> null
+      - source_service_accounts = [] -> null
+      - source_tags             = [] -> null
+      - target_service_accounts = [] -> null
+      - target_tags             = [
+          - "externalssh",
+        ] -> null
+
+      - allow {
+          - ports    = [
+              - "22",
+            ] -> null
+          - protocol = "tcp" -> null
+        }
+    }
+
+  # google_compute_firewall.webserver will be destroyed
+  - resource "google_compute_firewall" "webserver" {
+      - creation_timestamp      = "2022-06-26T15:42:29.411-07:00" -> null
+      - destination_ranges      = [] -> null
+      - direction               = "INGRESS" -> null
+      - disabled                = false -> null
+      - enable_logging          = false -> null
+      - id                      = "projects/sdypp-352002/global/firewalls/ws" -> null
+      - name                    = "ws" -> null
+      - network                 = "https://www.googleapis.com/compute/v1/projects/sdypp-352002/global/networks/default" -> null
+      - priority                = 1000 -> null
+      - project                 = "sdypp-352002" -> null
+      - self_link               = "https://www.googleapis.com/compute/v1/projects/sdypp-352002/global/firewalls/ws" -> null
+      - source_ranges           = [
+          - "0.0.0.0/0",
+        ] -> null
+      - source_service_accounts = [] -> null
+      - source_tags             = [] -> null
+      - target_service_accounts = [] -> null
+      - target_tags             = [
+          - "webserver",
+        ] -> null
+
+      - allow {
+          - ports    = [
+              - "80",
+              - "443",
+            ] -> null
+          - protocol = "tcp" -> null
+        }
+    }
+
+  # google_compute_instance.dev will be destroyed
+  - resource "google_compute_instance" "dev" {
+      - can_ip_forward       = false -> null
+      - cpu_platform         = "Intel Haswell" -> null
+      - deletion_protection  = false -> null
+      - enable_display       = false -> null
+      - guest_accelerator    = [] -> null
+      - id                   = "projects/sdypp-352002/zones/us-east1-b/instances/vm-public-bastion" -> null
+      - instance_id          = "6785385746230763022" -> null
+      - label_fingerprint    = "42WmSpB8rSM=" -> null
+      - labels               = {} -> null
+      - machine_type         = "f1-micro" -> null
+      - metadata             = {
+          - "ssh-keys" = <<-EOT
+                ncavasin:ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC6IpMSJyCJLVKua/hc3PZ1prGuPdBa1SKZxUxpgqH5qqHWA9PUaZwDW+bon+L14A2f1Zolh5KUyWf+4N0I3RMI/WCczjqJFGcx6ILIe4fZwkqLL21Z31HU8D5IBZ05kuKgGul48D0Dj5g8P4kR5PN6tPp4oS8zt32YYPqeSW9qMEDMKDcuF4gj9Gr8+QaChdmg3oBRIvS0/C4bOnor7uC7xdLB2OAVcunJvxvC1qYLI+LE18x/gYZ8AmMK/DnPb5b6TkfpsaKkSo05xAlmk2hIZwaWOsfvAMvmxWyT45tTmxpBtrTylO70M++uMiHewMr/c4EjGS9K7mckMPWyVb7Rizqomd83orDQaulrnipkhtU0DY/Wcvw5oXy0HTsZqCnQoH5xh/JpiUwOpH2LjjmmXSolc0wR4dGSe+OSmcxXAIKA9yAaiW+qR/eg4a6PS/2P78lMW4v7CgoJUtaigqv7VxUxT4rAMhupjYy4cPfiahXpC3J3TYCvwepeVkfP5m0= nico@arch
+            EOT
+        } -> null
+      - metadata_fingerprint = "IGEY5uDO_38=" -> null
+      - name                 = "vm-public-bastion" -> null
+      - project              = "sdypp-352002" -> null
+      - self_link            = "https://www.googleapis.com/compute/v1/projects/sdypp-352002/zones/us-east1-b/instances/vm-public-bastion" -> null
+      - tags                 = [
+          - "externalssh",
+          - "webserver",
+        ] -> null
+      - tags_fingerprint     = "Mh9u1hBHiNA=" -> null
+      - zone                 = "us-east1-b" -> null
+
+      - boot_disk {
+          - auto_delete = true -> null
+          - device_name = "persistent-disk-0" -> null
+          - mode        = "READ_WRITE" -> null
+          - source      = "https://www.googleapis.com/compute/v1/projects/sdypp-352002/zones/us-east1-b/disks/vm-public-bastion" -> null
+
+          - initialize_params {
+              - image  = "https://www.googleapis.com/compute/v1/projects/centos-cloud/global/images/centos-7-v20220621" -> null
+              - labels = {} -> null
+              - size   = 20 -> null
+              - type   = "pd-standard" -> null
+            }
+        }
+
+      - network_interface {
+```
 
 
 
