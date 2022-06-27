@@ -718,6 +718,20 @@ prueba local
 
 Como se puede observar, la transferencia del archivo fué exitosa.
 
+## Clonación de la infraestructura
+
+La única manera de clonar nuestra infraestructura, en esta caso una única instancia, es utilizando el TF State.
+
+Cada vez que se ejecuta el comando ``terraform apply`` se modifica el estado del repositorio de manera acorde a lo definido en sus archivos. Estas modificaciones se reflejan en el archivo ``terraform.state`` el cual siempre almacena el estado actual del mismo. Es decir, es algo así como un *snapshot* de nuestra infraestructura.
+Por lo tanto, para poder clonarla necesitamos dicho estado. El proceso a realizar es similar a la restauración de una base de datos a través de un backup.
+
+El proceso de clonado sencillo. Se deben realizar todos los pasos mencionados en Prerequisitos, es decir: poseer credenciales de una Service Account, poseer un par de claves SSH y haber inicializado el repositorio de terraform.
+
+Llegado a dicho punto, el comando a ejecutar ahora es ``terraform plan -f terraform.state``.
+
+> Nota: es conveniente realizar un backup periódico del TF State y almacenarlo en un bucket para que siempre esté disponible.
+
+
 ## Destrucción de la infraestructura
 
 Para finalizar, destruimos la infraestructura desplegada con el comando ``terraform destroy``.
