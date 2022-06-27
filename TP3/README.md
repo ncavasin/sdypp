@@ -526,10 +526,29 @@ Last login: Sun Jun 26 22:43:11 2022 from 181.170.115.210
 
 La VM está ahora a nuestra dispoción.
 
+## Reinicio del sistema
+
+Una vez logueados, procedemos a reiniciar la instancia remotamente. Como es de esperar, la conexión SSH es interrumpida.
+
+```bash
+[ncavasin@vm-public-bastion ~]$ sudo reboot now
+Connection to 34.73.33.155 closed by remote host.
+Connection to 34.73.33.155 closed.
+```
+
+Al cabo de unos segundos se vuelve a intentar establecer la conexión con el mismo comando del apartado anterior.
+
+```bash
+$ ssh -o StrictHostChecking=no -i ./ssh_keys/google_compute_engine ncavasin@34.73.33.155
+Last login: Sun Jun 26 22:45:11 2022 from 181.170.115.210
+[ncavasin@vm-public-bastion ~]$
+```
+
+La VM responde y vuelve a estar a nuestra merced.
 
 ## Instalación de paquetes
 
-Una vez logueados, procedemos a instalar ``wget``:
+Nuevamente adentro del sistema, procedemos a instalar ``wget``:
 
 ```bash
 [ncavasin@vm-public-bastion ~]$ sudo yum  install wget
@@ -697,20 +716,7 @@ prueba local
 [ncavasin@vm-public-bastion ~]$ 
 ```
 
-### Instancia a local
-Se crea un archivo llamado ``remote_transfer.txt`` con el contenido "prueba remota" y luego se lo copia a destino utilizando SSH.
-
-```bash
-
-```
-
-Verificación en local:
-
-```bash
-
-```
-
-
+Como se puede observar, la transferencia del archivo fué exitosa.
 
 ## Destrucción de la infraestructura
 
