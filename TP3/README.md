@@ -720,156 +720,244 @@ Como se puede observar, la transferencia del archivo fué exitosa.
 
 ## Clonación de la infraestructura
 
-La única manera de clonar nuestra infraestructura, en esta caso una única instancia, es utilizando el TF State.
+Para poder crear más de una replica de nuestra infraestructura se utilza un meta argumento  de Terraform llamado ``count``, cuya documentación se encuentra [aquí](https://www.terraform.io/language/meta-arguments/count).
 
-Cada vez que se ejecuta el comando ``terraform apply`` se modifica el estado del repositorio de manera acorde a lo definido en sus archivos. Estas modificaciones se reflejan en el archivo ``terraform.state`` el cual siempre almacena el estado actual del mismo. Es decir, es algo así como un *snapshot* de nuestra infraestructura.
-Por lo tanto, para poder clonarla necesitamos dicho estado. El proceso a realizar es similar a la restauración de una base de datos a través de un backup.
+``count`` solo acepta un numero entero el cual representa la cantidad de instancias que Terraform creará de acuerdo a lo indicado por nuestros archivos del repositorio.
 
-El proceso de clonado sencillo. Se deben realizar todos los pasos mencionados en Prerequisitos, es decir: poseer credenciales de una Service Account, poseer un par de claves SSH y haber inicializado el repositorio de terraform.
+Por lo tanto, es necesario editar el archivo ``02-main.tf`` agregando dicho meta argumento e indicando que se desean 2 replicas:
+```bash
+# [STEP 3] - Create a public IP for the instance
+resource "google_compute_address" "static" {
+  count = 2
+  name = "publicip-${count.index}"
+  project = var.project
+  region = var.region
+  depends_on = [ google_compute_firewall.ssh ]
+}
 
-Llegado a dicho punto, el comando a ejecutar ahora es ``terraform plan -f terraform.state``.
+# [STEP 4] - Create a compute instance
+resource "google_compute_instance" "dev" {
+  count        = 2
+  name         = "${var.vm_name}-${count.index}"
+  machine_type = "f1-micro"
+  zone         = var.zone
+  tags         = ["externalssh","webserver"]
+.
+.
+.
+```
 
-> Nota: es conveniente realizar un backup periódico del TF State y almacenarlo en un bucket para que siempre esté disponible.
+Para efectivizar el clonado ejecutamos ``terraform apply`` otra vez:
+```bash
+$ terraform apply
+google_compute_firewall.webserver: Refreshing state... [id=projects/sdypp-352002/global/firewalls/ws]
+google_compute_firewall.ssh: Refreshing state... [id=projects/sdypp-352002/global/firewalls/ssh]
+google_compute_address.static: Refreshing state... [id=projects/sdypp-352002/regions/us-east1/addresses/publicip]
+google_compute_instance.dev[0]: Refreshing state... [id=projects/sdypp-352002/zones/us-east1-b/instances/vm-public-bastion]
+.
+.
+.
+Do you want to perform these actions?
+  Terraform will perform the actions described above.
+  Only 'yes' will be accepted to approve.
 
+  Enter a value: yes
+
+google_compute_firewall.webserver: Creating...
+google_compute_firewall.ssh: Creating...
+google_compute_firewall.ssh: Creation complete after 8s [id=projects/sdypp-352002/global/firewalls/ssh]
+google_compute_address.static[0]: Creating...
+google_compute_address.static[1]: Creating...
+google_compute_firewall.webserver: Creation complete after 8s [id=projects/sdypp-352002/global/firewalls/ws]
+google_compute_address.static[1]: Creation complete after 2s [id=projects/sdypp-352002/regions/us-east1/addresses/publicip-1]
+google_compute_address.static[0]: Creation complete after 2s [id=projects/sdypp-352002/regions/us-east1/addresses/publicip-0]
+google_compute_instance.dev[1]: Creating...
+google_compute_instance.dev[0]: Creating...
+google_compute_instance.dev[0]: Still creating... [10s elapsed]
+google_compute_instance.dev[1]: Still creating... [10s elapsed]
+google_compute_instance.dev[1]: Provisioning with 'remote-exec'...
+google_compute_instance.dev[1] (remote-exec): Connecting to remote host via SSH...
+google_compute_instance.dev[1] (remote-exec):   Host: 34.73.33.155
+google_compute_instance.dev[1] (remote-exec):   User: ncavasin
+google_compute_instance.dev[1] (remote-exec):   Password: false
+google_compute_instance.dev[1] (remote-exec):   Private key: true
+google_compute_instance.dev[1] (remote-exec):   Certificate: false
+google_compute_instance.dev[1] (remote-exec):   SSH Agent: true
+google_compute_instance.dev[1] (remote-exec):   Checking Host Key: false
+google_compute_instance.dev[1] (remote-exec):   Target Platform: unix
+google_compute_instance.dev[0]: Provisioning with 'remote-exec'...
+google_compute_instance.dev[0] (remote-exec): Connecting to remote host via SSH...
+google_compute_instance.dev[0] (remote-exec):   Host: 35.227.49.220
+google_compute_instance.dev[0] (remote-exec):   User: ncavasin
+google_compute_instance.dev[0] (remote-exec):   Password: false
+google_compute_instance.dev[0] (remote-exec):   Private key: true
+google_compute_instance.dev[0] (remote-exec):   Certificate: false
+google_compute_instance.dev[0] (remote-exec):   SSH Agent: true
+google_compute_instance.dev[0] (remote-exec):   Checking Host Key: false
+google_compute_instance.dev[0] (remote-exec):   Target Platform: unix
+google_compute_instance.dev[0]: Still creating... [20s elapsed]
+google_compute_instance.dev[1]: Still creating... [20s elapsed]
+google_compute_instance.dev[1] (remote-exec): Connecting to remote host via SSH...
+google_compute_instance.dev[1] (remote-exec):   Host: 34.73.33.155
+google_compute_instance.dev[1] (remote-exec):   User: ncavasin
+google_compute_instance.dev[1] (remote-exec):   Password: false
+google_compute_instance.dev[1] (remote-exec):   Private key: true
+google_compute_instance.dev[1] (remote-exec):   Certificate: false
+google_compute_instance.dev[1] (remote-exec):   SSH Agent: true
+google_compute_instance.dev[1] (remote-exec):   Checking Host Key: false
+google_compute_instance.dev[1] (remote-exec):   Target Platform: unix
+google_compute_instance.dev[0] (remote-exec): Connecting to remote host via SSH...
+google_compute_instance.dev[0] (remote-exec):   Host: 35.227.49.220
+google_compute_instance.dev[0] (remote-exec):   User: ncavasin
+google_compute_instance.dev[0] (remote-exec):   Password: false
+google_compute_instance.dev[0] (remote-exec):   Private key: true
+google_compute_instance.dev[0] (remote-exec):   Certificate: false
+google_compute_instance.dev[0] (remote-exec):   SSH Agent: true
+google_compute_instance.dev[0] (remote-exec):   Checking Host Key: false
+google_compute_instance.dev[0] (remote-exec):   Target Platform: unix
+google_compute_instance.dev[1] (remote-exec): Connecting to remote host via SSH...
+google_compute_instance.dev[1] (remote-exec):   Host: 34.73.33.155
+google_compute_instance.dev[1] (remote-exec):   User: ncavasin
+google_compute_instance.dev[1] (remote-exec):   Password: false
+google_compute_instance.dev[1] (remote-exec):   Private key: true
+google_compute_instance.dev[1] (remote-exec):   Certificate: false
+google_compute_instance.dev[1] (remote-exec):   SSH Agent: true
+google_compute_instance.dev[1] (remote-exec):   Checking Host Key: false
+google_compute_instance.dev[1] (remote-exec):   Target Platform: unix
+google_compute_instance.dev[0] (remote-exec): Connected!
+.
+.
+.
+
+google_compute_instance.dev[0] (remote-exec): google-cloud-s: [              ] 1/3318
+.
+.
+.
+google_compute_instance.dev[0] (remote-exec): google-cloud: [#######      ] 1968/3318
+.
+.
+.
+google_compute_instance.dev[0] (remote-exec): google-cloud: [############ ] 3312/3318
+google_compute_instance.dev[0] (remote-exec): google-cloud-sdk              3318/3318
+.
+.
+.
+google_compute_instance.dev[1] (remote-exec): google-cloud-: [##           ] 592/3318
+.
+.
+.
+google_compute_instance.dev[1] (remote-exec): google-cloud: [#####        ] 1424/3318
+.
+.
+.
+google_compute_instance.dev[1] (remote-exec): google-cloud: [############ ] 3312/3318
+.
+.
+.
+google_compute_instance.dev[1] (remote-exec): Total download size: 3.3 M
+google_compute_instance.dev[1] (remote-exec): Installed size: 8.6 M
+google_compute_instance.dev[1] (remote-exec): Downloading packages:
+google_compute_instance.dev[0] (remote-exec):   Installing : 1:nginx-1.20.1-9.e   7/7
+.
+.
+.
+google_compute_instance.dev[0] (remote-exec):   Verifying  : centos-indexhtml-7   7/7
+google_compute_instance.dev[1] (remote-exec): (3/7): make-3.8 8% | 296 kB   --:-- ETA
+google_compute_instance.dev[1] (remote-exec): (2/7): gperftools- | 272 kB   00:00
+
+google_compute_instance.dev[0] (remote-exec): Installed:
+google_compute_instance.dev[0] (remote-exec):   nginx.x86_64 1:1.20.1-9.el7
+.
+.
+.
+google_compute_instance.dev[0] (remote-exec): Complete!
+google_compute_instance.dev[1] (remote-exec): nginx version: nginx/1.20.1
+google_compute_instance.dev[1]: Creation complete after 45s [id=projects/sdypp-352002/zones/us-east1-b/instances/vm-public-bastion-1]
+
+Apply complete! Resources: 6 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+ippublica = <<EOT
+ssh -o StrictHostKeyChecking=no -i ./ssh_keys/google_compute_engine ncavasin@34.75.49.134 
+ ssh -o StrictHostKeyChecking=no -i ./ssh_keys/google_compute_engine ncavasin@34.148.67.117 
+EOT
+```
+
+Como se puede observar, se han creado dos instancias diferentes con dos IPs públicas diferentes a las cuales se puede acceder a través de SSH.
+
+Conexión a ncavasin@34.75.49.134:
+
+```bash
+$ ssh -o StrictHostKeyChecking=no -i ./ssh_keys/google_compute_engine ncavasin@34.75.49.134
+
+Warning: Permanently added '34.75.49.134' (ED25519) to the list of known hosts.
+Last login: Tue Jun 28 01:28:12 2022 from 181.170.115.218
+[ncavasin@vm-public-bastion-1 ~]$ whoami
+ncavasin
+[ncavasin@vm-public-bastion-1 ~]$ uname -r
+3.10.0-1160.66.1.el7.x86_64
+[ncavasin@vm-public-bastion-1 ~]$ 
+[ncavasin@vm-public-bastion-0 ~]$ 
+```
+
+Conexión a ncavasin@34.148.67.117
+```bash
+$ ssh -o StrictHostKeyChecking=no -i ./ssh_keys/google_compute_engine ncavasin@34.148.67.117  
+
+Warning: Permanently added '34.148.67.117' (ED25519) to the list of known hosts.
+Last login: Tue Jun 28 01:31:12 2022 from 181.170.115.218
+[ncavasin@vm-public-bastion-1 ~]$ whoami
+ncavasin
+[ncavasin@vm-public-bastion-1 ~]$ uname -r
+3.10.0-1160.66.1.el7.x86_64
+[ncavasin@vm-public-bastion-1 ~]$ 
+```
+
+Se concluye que la clonación ha sido exitosa.
 
 ## Destrucción de la infraestructura
 
 Para finalizar, destruimos la infraestructura desplegada con el comando ``terraform destroy``.
-
 ```bash
 $ terraform destroy
 google_compute_firewall.webserver: Refreshing state... [id=projects/sdypp-352002/global/firewalls/ws]
 google_compute_firewall.ssh: Refreshing state... [id=projects/sdypp-352002/global/firewalls/ssh]
-google_compute_address.static: Refreshing state... [id=projects/sdypp-352002/regions/us-east1/addresses/publicip]
-google_compute_instance.dev: Refreshing state... [id=projects/sdypp-352002/zones/us-east1-b/instances/vm-public-bastion]
+google_compute_address.static[0]: Refreshing state... [id=projects/sdypp-352002/regions/us-east1/addresses/publicip-0]
+google_compute_address.static[1]: Refreshing state... [id=projects/sdypp-352002/regions/us-east1/addresses/publicip-1]
+google_compute_instance.dev[1]: Refreshing state... [id=projects/sdypp-352002/zones/us-east1-b/instances/vm-public-bastion-1]
+google_compute_instance.dev[0]: Refreshing state... [id=projects/sdypp-352002/zones/us-east1-b/instances/vm-public-bastion-0]
 
 Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
   - destroy
 
 Terraform will perform the following actions:
+.
+.
+.
+Plan: 0 to add, 0 to change, 6 to destroy.
+Do you really want to destroy all resources?
+  Terraform will destroy all your managed infrastructure, as shown above.
+  There is no undo. Only 'yes' will be accepted to confirm.
 
-  # google_compute_address.static will be destroyed
-  - resource "google_compute_address" "static" {
-      - address            = "34.73.33.155" -> null
-      - address_type       = "EXTERNAL" -> null
-      - creation_timestamp = "2022-06-26T15:42:37.709-07:00" -> null
-      - id                 = "projects/sdypp-352002/regions/us-east1/addresses/publicip" -> null
-      - name               = "publicip" -> null
-      - network_tier       = "PREMIUM" -> null
-      - project            = "sdypp-352002" -> null
-      - region             = "us-east1" -> null
-      - self_link          = "https://www.googleapis.com/compute/v1/projects/sdypp-352002/regions/us-east1/addresses/publicip" -> null
-      - users              = [
-          - "https://www.googleapis.com/compute/v1/projects/sdypp-352002/zones/us-east1-b/instances/vm-public-bastion",
-        ] -> null
-    }
+  Enter a value: yes
 
-  # google_compute_firewall.ssh will be destroyed
-  - resource "google_compute_firewall" "ssh" {
-      - creation_timestamp      = "2022-06-26T15:42:29.383-07:00" -> null
-      - destination_ranges      = [] -> null
-      - direction               = "INGRESS" -> null
-      - disabled                = false -> null
-      - enable_logging          = false -> null
-      - id                      = "projects/sdypp-352002/global/firewalls/ssh" -> null
-      - name                    = "ssh" -> null
-      - network                 = "https://www.googleapis.com/compute/v1/projects/sdypp-352002/global/networks/default" -> null
-      - priority                = 1000 -> null
-      - project                 = "sdypp-352002" -> null
-      - self_link               = "https://www.googleapis.com/compute/v1/projects/sdypp-352002/global/firewalls/ssh" -> null
-      - source_ranges           = [
-          - "0.0.0.0/0",
-        ] -> null
-      - source_service_accounts = [] -> null
-      - source_tags             = [] -> null
-      - target_service_accounts = [] -> null
-      - target_tags             = [
-          - "externalssh",
-        ] -> null
+google_compute_firewall.webserver: Destroying... [id=projects/sdypp-352002/global/firewalls/ws]
+google_compute_instance.dev[0]: Destroying... [id=projects/sdypp-352002/zones/us-east1-b/instances/vm-public-bastion-0]
+google_compute_instance.dev[1]: Destroying... [id=projects/sdypp-352002/zones/us-east1-b/instances/vm-public-bastion-1]
+google_compute_firewall.webserver: Destruction complete after 8s
+google_compute_instance.dev[0]: Still destroying... [id=projects/sdypp-352002/zones/us-east1-b/instances/vm-public-bastion-0, 10s elapsed]
+google_compute_instance.dev[1]: Still destroying... [id=projects/sdypp-352002/zones/us-east1-b/instances/vm-public-bastion-1, 10s elapsed]
+google_compute_instance.dev[0]: Destruction complete after 18s
+google_compute_instance.dev[1]: Destruction complete after 18s
+google_compute_address.static[1]: Destroying... [id=projects/sdypp-352002/regions/us-east1/addresses/publicip-1]
+google_compute_address.static[0]: Destroying... [id=projects/sdypp-352002/regions/us-east1/addresses/publicip-0]
+google_compute_address.static[1]: Destruction complete after 5s
+google_compute_address.static[0]: Destruction complete after 5s
+google_compute_firewall.ssh: Destroying... [id=projects/sdypp-352002/global/firewalls/ssh]
+google_compute_firewall.ssh: Destruction complete after 7s
 
-      - allow {
-          - ports    = [
-              - "22",
-            ] -> null
-          - protocol = "tcp" -> null
-        }
-    }
-
-  # google_compute_firewall.webserver will be destroyed
-  - resource "google_compute_firewall" "webserver" {
-      - creation_timestamp      = "2022-06-26T15:42:29.411-07:00" -> null
-      - destination_ranges      = [] -> null
-      - direction               = "INGRESS" -> null
-      - disabled                = false -> null
-      - enable_logging          = false -> null
-      - id                      = "projects/sdypp-352002/global/firewalls/ws" -> null
-      - name                    = "ws" -> null
-      - network                 = "https://www.googleapis.com/compute/v1/projects/sdypp-352002/global/networks/default" -> null
-      - priority                = 1000 -> null
-      - project                 = "sdypp-352002" -> null
-      - self_link               = "https://www.googleapis.com/compute/v1/projects/sdypp-352002/global/firewalls/ws" -> null
-      - source_ranges           = [
-          - "0.0.0.0/0",
-        ] -> null
-      - source_service_accounts = [] -> null
-      - source_tags             = [] -> null
-      - target_service_accounts = [] -> null
-      - target_tags             = [
-          - "webserver",
-        ] -> null
-
-      - allow {
-          - ports    = [
-              - "80",
-              - "443",
-            ] -> null
-          - protocol = "tcp" -> null
-        }
-    }
-
-  # google_compute_instance.dev will be destroyed
-  - resource "google_compute_instance" "dev" {
-      - can_ip_forward       = false -> null
-      - cpu_platform         = "Intel Haswell" -> null
-      - deletion_protection  = false -> null
-      - enable_display       = false -> null
-      - guest_accelerator    = [] -> null
-      - id                   = "projects/sdypp-352002/zones/us-east1-b/instances/vm-public-bastion" -> null
-      - instance_id          = "6785385746230763022" -> null
-      - label_fingerprint    = "42WmSpB8rSM=" -> null
-      - labels               = {} -> null
-      - machine_type         = "f1-micro" -> null
-      - metadata             = {
-          - "ssh-keys" = <<-EOT
-                ncavasin:ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC6IpMSJyCJLVKua/hc3PZ1prGuPdBa1SKZxUxpgqH5qqHWA9PUaZwDW+bon+L14A2f1Zolh5KUyWf+4N0I3RMI/WCczjqJFGcx6ILIe4fZwkqLL21Z31HU8D5IBZ05kuKgGul48D0Dj5g8P4kR5PN6tPp4oS8zt32YYPqeSW9qMEDMKDcuF4gj9Gr8+QaChdmg3oBRIvS0/C4bOnor7uC7xdLB2OAVcunJvxvC1qYLI+LE18x/gYZ8AmMK/DnPb5b6TkfpsaKkSo05xAlmk2hIZwaWOsfvAMvmxWyT45tTmxpBtrTylO70M++uMiHewMr/c4EjGS9K7mckMPWyVb7Rizqomd83orDQaulrnipkhtU0DY/Wcvw5oXy0HTsZqCnQoH5xh/JpiUwOpH2LjjmmXSolc0wR4dGSe+OSmcxXAIKA9yAaiW+qR/eg4a6PS/2P78lMW4v7CgoJUtaigqv7VxUxT4rAMhupjYy4cPfiahXpC3J3TYCvwepeVkfP5m0= nico@arch
-            EOT
-        } -> null
-      - metadata_fingerprint = "IGEY5uDO_38=" -> null
-      - name                 = "vm-public-bastion" -> null
-      - project              = "sdypp-352002" -> null
-      - self_link            = "https://www.googleapis.com/compute/v1/projects/sdypp-352002/zones/us-east1-b/instances/vm-public-bastion" -> null
-      - tags                 = [
-          - "externalssh",
-          - "webserver",
-        ] -> null
-      - tags_fingerprint     = "Mh9u1hBHiNA=" -> null
-      - zone                 = "us-east1-b" -> null
-
-      - boot_disk {
-          - auto_delete = true -> null
-          - device_name = "persistent-disk-0" -> null
-          - mode        = "READ_WRITE" -> null
-          - source      = "https://www.googleapis.com/compute/v1/projects/sdypp-352002/zones/us-east1-b/disks/vm-public-bastion" -> null
-
-          - initialize_params {
-              - image  = "https://www.googleapis.com/compute/v1/projects/centos-cloud/global/images/centos-7-v20220621" -> null
-              - labels = {} -> null
-              - size   = 20 -> null
-              - type   = "pd-standard" -> null
-            }
-        }
-
-      - network_interface {
+Destroy complete! Resources: 6 destroyed.
 ```
 
 
