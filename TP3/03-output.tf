@@ -1,7 +1,3 @@
 output "ippublica" {
-    value = "ssh -o StrictHostKeyChecking=no -i ${var.privatekeypath} ${var.user}@${google_compute_address.static.address}"
-}
-
-output "nombrevm" {
-    value = google_compute_instance.dev.name
+    value = "ssh -o StrictHostKeyChecking=no -i ${var.privatekeypath} ${var.user}@${google_compute_address.static[0].address} \n ssh -o StrictHostKeyChecking=no -i ${var.privatekeypath} ${var.user}@${google_compute_address.static[1].address} "
 }

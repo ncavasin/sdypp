@@ -25,17 +25,21 @@ resource "google_compute_firewall" "webserver" {
 
 # [STEP 3] - Create a public IP for the instance
 resource "google_compute_address" "static" {
-  name = "publicip"
+  count = 2
+  name = "publicip-${count.index}"
   project = var.project
   region = var.region
   depends_on = [ google_compute_firewall.ssh ]
 }
 
+# [STEP 4] - Create a compute instance
 resource "google_compute_instance" "dev" {
-  name         = var.vm_name
+  count        = 2
+  name         = "${var.vm_name}-${count.index}"
   machine_type = "f1-micro"
   zone         = var.zone
   tags         = ["externalssh","webserver"]
+
   boot_disk {
     initialize_params {
       image = "centos-cloud/centos-7"
@@ -44,12 +48,12 @@ resource "google_compute_instance" "dev" {
   network_interface {
     network = "default"
     access_config {
-      nat_ip = google_compute_address.static.address
+      nat_ip = google_compute_address.static[count.index].address
     }
   }
   provisioner "remote-exec" {
     connection {
-      host        = google_compute_address.static.address
+      host        = google_compute_address.static[count.index].address
       type        = "ssh"
       user        = var.user
       timeout     = "500s"
